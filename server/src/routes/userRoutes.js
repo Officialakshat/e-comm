@@ -14,7 +14,7 @@ router.post("/register", async (req, res) => {
       password,
     });
 
-    req.status(201).json({
+    res.status(201).json({
       success: true,
       user,
     });
