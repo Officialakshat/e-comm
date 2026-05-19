@@ -35,3 +35,14 @@ exports.protect = async (req, res, next) => {
     });
   }
 };
+
+exports.admin = (req, res, next) => {
+  if (req.user && req.user.role === "admin") {
+    next();
+  } else {
+    res.status(401).json({
+      success: false,
+      message: "Admin access only",
+    });
+  }
+};
