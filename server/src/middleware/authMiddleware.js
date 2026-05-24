@@ -1,48 +1,43 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
-// protect routes
-
 exports.protect = async (req, res, next) => {
-  let token;
-
   try {
-    // check authorization header
+    let token;
+
+    console.log(req.headers.authorization);
 
     if (
-      req.headers.authorizations &&
-      req.headers.authorizations.startsWith("Bearer")
+      req.headers.authorization &&
+      req.headers.authorization.startsWith("Bearer")
     ) {
-      // get token from header
-      token = req.header.authorizations.split(" ")[1];
+      token = req.headers.authorization.split(" ")[1];
 
-      // verify token
+      console.log("TOKEN:", token);
+
+      // VERIFY TOKEN
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      // get user from DB
+      console.log("DECODED:", decoded);
+
+      // FIND USER
       req.user = await User.findById(decoded.id).select("-password");
-      next();
-    } else {
-      res.status(401).json({
-        success: false,
-        message: "not authorized , no token",
-      });
+
+      console.log("USER:", req.user);
+
+      return next();
     }
+
+    return res.status(401).json({
+      success: false,
+      message: "Not authorized, no token",
+    });
   } catch (error) {
-    res.status(401).json({
+    console.log("AUTH ERROR:", error);
+
+    return res.status(401).json({
       success: false,
       message: "Token failed",
-    });
-  }
-};
-
-exports.admin = (req, res, next) => {
-  if (req.user && req.user.role === "admin") {
-    next();
-  } else {
-    res.status(401).json({
-      success: false,
-      message: "Admin access only",
     });
   }
 };

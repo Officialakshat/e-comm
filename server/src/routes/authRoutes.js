@@ -8,19 +8,18 @@ const {
   getUserPofile,
 } = require("../controllers/authController");
 
-const { protect } = require("../middleware/authMiddleware");
-
 router.post("/register", registerUser);
 
 router.post("/login", loginUser);
 
 // protected routes
+const { protect } = require("../middleware/authMiddleware");
+
 router.get("/profile", protect, getUserPofile);
 module.exports = router;
 
-const { admin } = require("../middleware/authMiddleware");
-
 // admin route
+const { admin } = require("../middleware/authMiddleware");
 
 router.get("/admin", protect, admin, (req, res) => {
   res.json({
