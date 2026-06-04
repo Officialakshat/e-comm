@@ -1,33 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { Input, SocialBtn, Divider } from "../components/AuthShared";
-import api from "../services/api";
-import { useState } from "react";
 
 export default function Login() {
   const navigate = useNavigate();
-
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const loginHandler = async (e) => {
-    e.preventDefault();
-
-    try {
-      const response = await api.post("/auth/login", {
-        email,
-        password,
-      });
-
-      console.log(response.data);
-
-      localStorage.setItem("token", response.data.token);
-
-      alert("Login Success");
-    } catch (error) {
-      console.log(error.response?.data);
-      alert("Login Failed");
-    }
-  };
 
   return (
     <div className="min-h-screen bg-linear-to-br from-[#fdf9f5] via-[#f5ede0] to-[#ede0cc] flex items-center justify-center px-4 py-12">
@@ -52,17 +27,14 @@ export default function Login() {
 
           <Divider />
 
-          <form className="flex flex-col gap-4 mt-1" onSubmit={loginHandler}>
-            <Input
-              label="Email"
-              type="email"
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-            />
+          <form
+            className="flex flex-col gap-4 mt-1"
+            onSubmit={(e) => e.preventDefault()}
+          >
+            <Input label="Email" type="email" placeholder="you@example.com" />
             <Input
               label="Password"
               type="password"
-              onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
             />
 
