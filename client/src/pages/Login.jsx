@@ -1,8 +1,31 @@
 import { useNavigate } from "react-router-dom";
 import { Input, SocialBtn, Divider } from "../components/AuthShared";
+import { useState } from "react";
+import api from "../services/api";
 
 export default function Login() {
   const navigate = useNavigate();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const submitHandler = async (e) => {
+    e.preventDefault();
+
+    try {
+      const { data } = await api.post("/auth/login", {
+        email,
+        password,
+      });
+
+      console.log(data);
+
+      localStorage.setItem("token", data.token);
+      alert("login Successfully");
+    } catch (error) {
+      console.log(error.response?.data);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-linear-to-br from-[#fdf9f5] via-[#f5ede0] to-[#ede0cc] flex items-center justify-center px-4 py-12">
@@ -27,15 +50,18 @@ export default function Login() {
 
           <Divider />
 
-          <form
-            className="flex flex-col gap-4 mt-1"
-            onSubmit={(e) => e.preventDefault()}
-          >
-            <Input label="Email" type="email" placeholder="you@example.com" />
+          <form className="flex flex-col gap-4 mt-1" onSubmit={submitHandler}>
+            <Input
+              label="Email"
+              type="email"
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+            />
             <Input
               label="Password"
               type="password"
               placeholder="Enter your password"
+              onChange={(e) => setPassword(e.target.value)}
             />
 
             <div className="flex items-center justify-between">

@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export function Input({ label, type = "text", placeholder, icon }) {
+export function Input({ label, type = "text", placeholder, icon, onChange }) {
   const [show, setShow] = useState(false);
   const isPassword = type === "password";
   return (
@@ -13,6 +13,7 @@ export function Input({ label, type = "text", placeholder, icon }) {
         <input
           type={isPassword ? (show ? "text" : "password") : type}
           placeholder={placeholder}
+          onChange={onChange}
           className="flex-1 bg-transparent outline-none border-none py-3 text-[14px] text-gray-800 placeholder-[#c0b0a0]"
         />
         {isPassword && (
