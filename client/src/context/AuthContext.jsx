@@ -10,13 +10,18 @@ export const AuthProvider = ({ children }) => {
   const fetchUser = async () => {
     try {
       const { data } = await api.get("/auth/profile");
-
       setUser(data.user);
     } catch (error) {
+      localStorage.removeItem("token");
       setUser(null);
     } finally {
       setLoading(false);
     }
+  };
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    setUser(null);
   };
 
   useEffect(() => {
@@ -35,6 +40,7 @@ export const AuthProvider = ({ children }) => {
         user,
         setUser,
         loading,
+        logout,
       }}
     >
       {children}

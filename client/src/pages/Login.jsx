@@ -2,9 +2,11 @@ import { useNavigate } from "react-router-dom";
 import { Input, SocialBtn, Divider } from "../components/AuthShared";
 import { useState } from "react";
 import api from "../services/api";
+import { useAuth } from "../context/AuthContext"; // 1. Import your auth hook
 
 export default function Login() {
   const navigate = useNavigate();
+  const { setUser } = useAuth(); // 2. Extract setUser from your context
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -20,10 +22,23 @@ export default function Login() {
 
       console.log(data);
 
+      // 3. Save token to local storage
       localStorage.setItem("token", data.token);
-      alert("login Successfully");
+
+      // 4. IMMEDIATELY update the AuthContext state with user data
+      // (Adjust 'data.user' depending on exactly how your backend response looks)
+      setUser(data.user);
+
+      alert("Login Successfully");
+
+      // 5. Redirect the user so they don't get stuck staring at the login form
+      navigate("/");
     } catch (error) {
       console.log(error.response?.data);
+      alert(
+        error.response?.data?.message ||
+          "Invalid credentials. Please try again.",
+      );
     }
   };
 

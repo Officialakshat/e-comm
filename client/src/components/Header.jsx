@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import CartDrawer from "../pages/cartDrawer";
 import useCart from "../Hooks/useCart";
+import { useAuth } from "../context/AuthContext";
 
 const navLinks = [
   { name: "Home", path: "/" },
@@ -23,6 +24,8 @@ export default function Navbar() {
   const cartCount = useCart();
   const navigate = useNavigate();
   const { pathname } = useLocation();
+
+  const { user, logout } = useAuth(); // Destructured logout assuming it's in your AuthContext
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -116,65 +119,104 @@ export default function Navbar() {
           </form>
 
           {/* Desktop Actions */}
-          <div className="hidden lg:flex items-center gap-2.5 shrink-0">
-            <button
-              onClick={() => navigate("/login")}
-              className="border-[1.5px] cursor-pointer border-[#C9B194] text-[#C9B194] hover:bg-[#C9B19415] text-[13px] font-medium rounded-full px-5 py-2 transition-all duration-200 hover:-translate-y-px active:scale-95"
-            >
-              Log In
-            </button>
-            <button
-              onClick={() => navigate("/signup")}
-              className="bg-[#C9B194] cursor-pointer hover:bg-[#b89e7e] text-white text-[13px] font-medium rounded-full px-5 py-2 transition-all duration-200 hover:-translate-y-px active:scale-95"
-            >
-              Sign Up
-            </button>
-
-            {/* Wishlist */}
-            <button
-              onClick={() => navigate("/wishlist")}
-              aria-label="Wishlist"
-              className="relative w-9 h-9 flex items-center justify-center bg-[#f8f5f1] hover:bg-[#efe8de] rounded-full transition-all duration-200 hover:scale-105 active:scale-95"
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#C9B194"
-                strokeWidth="2"
-              >
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-              </svg>
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#C9B194] text-white text-[9px] font-bold rounded-full flex items-center justify-center"></span>
-            </button>
-
-            {/* Cart */}
-            <button
-              onClick={() => setCartOpen(true)}
-              aria-label="Open cart"
-              className="relative w-9 h-9 flex items-center justify-center bg-[#f8f5f1] hover:bg-[#efe8de] rounded-full transition-all duration-200 hover:scale-105 active:scale-95"
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#C9B194"
-                strokeWidth="2"
-              >
-                <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
-                <line x1="3" y1="6" x2="21" y2="6" />
-                <path d="M16 10a4 4 0 0 1-8 0" />
-              </svg>
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-4 h-4 bg-[#C9B194] text-white text-[9px] font-bold rounded-full flex items-center justify-center px-0.5 animate-[fadeUp_0.3s_ease]">
-                  {cartCount > 9 ? "9+" : cartCount}
+          <div className="hidden lg:flex items-center gap-4 shrink-0">
+            {!user ? (
+              <div className="flex items-center gap-2.5">
+                <button
+                  onClick={() => navigate("/login")}
+                  className="border-[1.5px] cursor-pointer border-[#C9B194] text-[#C9B194] hover:bg-[#C9B19415] text-[13px] font-medium rounded-full px-5 py-2 transition-all duration-200 hover:-translate-y-px active:scale-95"
+                >
+                  Log In
+                </button>
+                <button
+                  onClick={() => navigate("/signup")}
+                  className="bg-[#C9B194] cursor-pointer hover:bg-[#b89e7e] text-white text-[13px] font-medium rounded-full px-5 py-2 transition-all duration-200 hover:-translate-y-px active:scale-95"
+                >
+                  Sign Up
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3 text-sm text-gray-700 font-medium">
+                <span className="text-gray-500">
+                  Hello, <strong className="text-gray-800">{user.name}</strong>
                 </span>
-              )}
-            </button>
+
+                {user.role === "admin" && (
+                  <button
+                    onClick={() => navigate("/admin/dashboard")}
+                    className="text-xs border border-red-200 bg-red-50 text-red-700 px-3 py-1.5 rounded-full hover:bg-red-100 transition"
+                  >
+                    Dashboard
+                  </button>
+                )}
+
+                <button
+                  onClick={() => navigate("/profile")}
+                  className="hover:text-[#C9B194] transition"
+                >
+                  Profile
+                </button>
+
+                {logout && (
+                  <button
+                    onClick={logout}
+                    className="text-xs text-gray-400 hover:text-red-500 transition ml-1"
+                  >
+                    Logout
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Utility Icons (Shared: Guest & Authenticated) */}
+            <div className="flex items-center gap-2.5 border-l border-gray-200 pl-4">
+              {/* Wishlist */}
+              <button
+                onClick={() => navigate("/wishlist")}
+                aria-label="Wishlist"
+                className="relative w-9 h-9 flex items-center justify-center bg-[#f8f5f1] hover:bg-[#efe8de] rounded-full transition-all duration-200 hover:scale-105 active:scale-95"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#C9B194"
+                  strokeWidth="2"
+                >
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                </svg>
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#C9B194] text-white text-[9px] font-bold rounded-full flex items-center justify-center"></span>
+              </button>
+
+              {/* Cart */}
+              <button
+                onClick={() => setCartOpen(true)}
+                aria-label="Open cart"
+                className="relative w-9 h-9 flex items-center justify-center bg-[#f8f5f1] hover:bg-[#efe8de] rounded-full transition-all duration-200 hover:scale-105 active:scale-95"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#C9B194"
+                  strokeWidth="2"
+                >
+                  <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                  <line x1="3" y1="6" x2="21" y2="6" />
+                  <path d="M16 10a4 4 0 0 1-8 0" />
+                </svg>
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-4 h-4 bg-[#C9B194] text-white text-[9px] font-bold rounded-full flex items-center justify-center px-0.5 animate-[fadeUp_0.3s_ease]">
+                    {cartCount > 9 ? "9+" : cartCount}
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
 
+          {/* Mobile Right Action Bar */}
           <div className="flex lg:hidden items-center gap-2">
             {/* Wishlist */}
             <button
@@ -197,6 +239,7 @@ export default function Navbar() {
               </span>
             </button>
 
+            {/* Cart */}
             <button
               onClick={() => setCartOpen(true)}
               aria-label="Open cart"
@@ -231,7 +274,6 @@ export default function Navbar() {
               }`}
             >
               {searchOpen ? (
-                // X icon when open
                 <svg
                   width="14"
                   height="14"
@@ -349,19 +391,55 @@ export default function Navbar() {
               );
             })}
 
-            <div className="flex gap-2.5 mt-3 pt-3 border-t border-[#ede5da]">
-              <button
-                onClick={() => navigate("/login")}
-                className="flex-1 cursor-pointer border-[1.5px] border-[#C9B194] text-[#C9B194] rounded-full py-2 text-sm font-medium hover:bg-[#C9B19415] transition-colors duration-200"
-              >
-                Log In
-              </button>
-              <button
-                onClick={() => navigate("/signup")}
-                className="flex-1 cursor-pointer bg-[#C9B194] hover:bg-[#b89e7e] text-white rounded-full py-2 text-sm font-medium transition-colors duration-200"
-              >
-                Sign Up
-              </button>
+            {/* Mobile Authentication Options */}
+            <div className="mt-3 pt-3 border-t border-[#ede5da]">
+              {!user ? (
+                <div className="flex gap-2.5">
+                  <button
+                    onClick={() => navigate("/login")}
+                    className="flex-1 cursor-pointer border-[1.5px] border-[#C9B194] text-[#C9B194] rounded-full py-2 text-sm font-medium hover:bg-[#C9B19415] transition-colors duration-200"
+                  >
+                    Log In
+                  </button>
+                  <button
+                    onClick={() => navigate("/signup")}
+                    className="flex-1 cursor-pointer bg-[#C9B194] hover:bg-[#b89e7e] text-white rounded-full py-2 text-sm font-medium transition-colors duration-200"
+                  >
+                    Sign Up
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  <div className="text-sm text-gray-600 px-3 py-1">
+                    Logged in as:{" "}
+                    <span className="font-semibold text-gray-800">
+                      {user.name}
+                    </span>
+                  </div>
+                  {user.role === "admin" && (
+                    <button
+                      onClick={() => navigate("/admin/dashboard")}
+                      className="w-full text-left px-3 py-2 text-sm text-red-600 bg-red-50 rounded-xl font-medium"
+                    >
+                      Admin Dashboard
+                    </button>
+                  )}
+                  <button
+                    onClick={() => navigate("/profile")}
+                    className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-xl"
+                  >
+                    My Profile
+                  </button>
+                  {logout && (
+                    <button
+                      onClick={logout}
+                      className="w-full text-left px-3 py-2 text-sm text-red-500 hover:bg-red-50 rounded-xl"
+                    >
+                      Logout
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -381,7 +459,6 @@ export default function Navbar() {
                 }`}
               >
                 {link.name}
-                {/* Underline indicator */}
                 <span
                   className={`absolute left-0 bottom-0 h-[1.5px] bg-[#C9B194] transition-all duration-300 ${
                     active ? "w-full" : "w-0 group-hover:w-full"
