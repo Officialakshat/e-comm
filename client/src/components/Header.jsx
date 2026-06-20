@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import CartDrawer from "../pages/cartDrawer";
 import useCart from "../Hooks/useCart";
 import { useAuth } from "../context/AuthContext";
+import { Profile } from "../pages/Profile";
 
 // ─── PROFILE DROPDOWN COMPONENT ───
 
@@ -189,10 +190,7 @@ export default function Navbar() {
 
                 {/* Render Dropdown Component inline contextually */}
                 {profileOpen && (
-                  <ProfileDropdown
-                    user={user}
-                    onClose={() => setProfileOpen(false)}
-                  />
+                  <Profile user={user} onClose={() => setProfileOpen(false)} />
                 )}
               </div>
             )}
