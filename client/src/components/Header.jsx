@@ -31,6 +31,7 @@ export default function Navbar() {
     { name: "Deals", path: "/bestDeals" },
     { name: "Brands", path: "/brands" },
     { name: "Products", path: "/products" },
+    { name: "My Orders", path: "/MyOrders" },
   ];
 
   // Close menus on route change

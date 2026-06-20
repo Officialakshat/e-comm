@@ -15,6 +15,7 @@ import CartDrawer from "./pages/cartDrawer";
 import Privacy from "./pages/Privacy";
 import Help from "./pages/Help";
 import Conditions from "./pages/Conditions";
+import MyOrders from "./pages/MyOrder";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
           <Route path="wishlist" element={<Wishlist />} />
           <Route path="signup" element={<Signup />} />
           <Route path="checkout" element={<Checkout />} />
+          <Route path="MyOrders" element={<MyOrders />} />
           <Route path="contact" element={<Contact />} />
           <Route path="privacy" element={<Privacy />} />
           <Route path="help" element={<Help />} />
