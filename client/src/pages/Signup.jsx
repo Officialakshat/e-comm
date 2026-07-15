@@ -1,8 +1,39 @@
 import { useNavigate } from "react-router-dom";
 import { Input, SocialBtn, Divider } from "../components/AuthShared";
+import { useState } from "react";
+import api from "../services/api";
 
 export default function SignUp() {
   const navigate = useNavigate();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const registerHandler = async (e) => {
+    e.preventDefault();
+
+    try {
+      const { data } = await api.post("/auth/register", {
+        name,
+        lastName,
+        email,
+        password,
+        confirmPassword,
+      });
+
+      localStorage.setItem("token", data.token);
+
+      alert("Registration Successful");
+
+      console.log(data);
+    } catch (error) {
+      console.log(error.response?.data);
+
+      alert(error.response?.data?.message || "Registration Failed");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-linear-to-br from-[#fdf9f5] via-[#f5ede0] to-[#ede0cc] flex items-center justify-center px-4 py-12">
@@ -27,23 +58,40 @@ export default function SignUp() {
 
           <Divider />
 
-          <form
-            className="flex flex-col gap-4 mt-1"
-            onSubmit={(e) => e.preventDefault()}
-          >
+          <form className="flex flex-col gap-4 mt-1" onSubmit={registerHandler}>
             <div className="grid grid-cols-2 gap-3">
-              <Input label="First Name" placeholder="John" />
-              <Input label="Last Name" placeholder="Doe" />
+              <Input
+                label="First Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="John"
+              />
+              <Input
+                label="Last Name"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                placeholder="Doe"
+              />
             </div>
-            <Input label="Email" type="email" placeholder="you@example.com" />
+            <Input
+              label="Email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+            />
             <Input
               label="Password"
               type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="Create a password"
             />
             <Input
               label="Confirm Password"
-              type="password"
+              type="confirmPassword"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Repeat your password"
             />
 
