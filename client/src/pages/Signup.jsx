@@ -2,6 +2,13 @@ import { useNavigate } from "react-router-dom";
 import { Input, SocialBtn, Divider } from "../components/AuthShared";
 import { useState } from "react";
 import api from "../services/api";
+import {
+  validateFullName,
+  validateEmail,
+  validatePassword,
+  validateConfirmPassword,
+  validateTerms,
+} from "../../../server/src/utils/validation";
 
 export default function SignUp() {
   const navigate = useNavigate();
@@ -10,11 +17,37 @@ export default function SignUp() {
   const [password, setPassword] = useState("");
   const [lastName, setLastName] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [terms, setTerms] = useState(false);
+
+  const [errors, setErrors] = useState({
+    name: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    terms: "",
+  });
 
   const registerHandler = async (e) => {
     e.preventDefault();
 
     try {
+      const newErrors = {
+        name: validateFullName(name),
+
+        email: validateEmail(email),
+        password: validatePassword(password),
+        confirmPassword: validateConfirmPassword(password, confirmPassword),
+        terms: validateTerms(terms),
+      };
+
+      setErrors(newErrors);
+
+      // Check if any validation failed
+      if (Object.values(newErrors).some((error) => error !== "")) {
+        return;
+      }
+
       const { data } = await api.post("/auth/register", {
         name,
         lastName,
@@ -61,13 +94,17 @@ export default function SignUp() {
           <form className="flex flex-col gap-4 mt-1" onSubmit={registerHandler}>
             <div className="grid grid-cols-2 gap-3">
               <Input
-                label="First Name"
+                label="Name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="John"
               />
+              {errors.name && (
+                <p className="text-red-500 text-xs mt-1">{errors.name}</p>
+              )}
+
               <Input
-                label="Last Name"
+                label="Surname (optional)"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 placeholder="Doe"
@@ -80,6 +117,9 @@ export default function SignUp() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
             />
+            {errors.email && (
+              <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+            )}
             <Input
               label="Password"
               type="password"
@@ -87,6 +127,9 @@ export default function SignUp() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Create a password"
             />
+            {errors.password && (
+              <p className="text-red-500 text-xs mt-1">{errors.password}</p>
+            )}
             <Input
               label="Confirm Password"
               type="confirmPassword"
@@ -95,11 +138,22 @@ export default function SignUp() {
               placeholder="Repeat your password"
             />
 
+            {errors.confirmPassword && (
+              <p className="text-red-500 text-xs mt-1">
+                {errors.confirmPassword}
+              </p>
+            )}
+
             <label className="flex items-start gap-2 cursor-pointer">
               <input
                 type="checkbox"
+                checked={terms}
+                onChange={(e) => setTerms(e.target.checked)}
                 className="accent-[#C9B194] mt-0.5 shrink-0"
               />
+              {errors.terms && (
+                <p className="text-red-500 text-xs mt-1">{errors.terms}</p>
+              )}
               <span className="text-[12px] text-gray-500 leading-relaxed">
                 I agree to the{" "}
                 <a href="#" className="text-[#C9B194] hover:underline">
