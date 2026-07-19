@@ -22,11 +22,7 @@ export default function Login() {
 
       console.log(data);
 
-      // 3. Save token to local storage
       localStorage.setItem("token", data.token);
-
-      // 4. IMMEDIATELY update the AuthContext state with user data
-      // (Adjust 'data.user' depending on exactly how your backend response looks)
       setUser(data.user);
 
       alert("Login Successfully");
