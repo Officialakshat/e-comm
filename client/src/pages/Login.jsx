@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext"; // 1. Import your auth hook
 
 export default function Login() {
   const navigate = useNavigate();
-  const { setUser } = useAuth(); // 2. Extract setUser from your context
+  const { setUser } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

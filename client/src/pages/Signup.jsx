@@ -9,6 +9,7 @@ import {
   validateConfirmPassword,
   validateTerms,
 } from "../../../server/src/utils/validation";
+import { useAuth } from "../context/AuthContext";
 
 export default function SignUp() {
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ export default function SignUp() {
   const [lastName, setLastName] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [terms, setTerms] = useState(false);
+  const { setUser } = useAuth();
 
   const [errors, setErrors] = useState({
     name: "",
@@ -57,10 +59,13 @@ export default function SignUp() {
       });
 
       localStorage.setItem("token", data.token);
+      setUser(data.user);
 
       alert("Registration Successful");
 
       console.log(data);
+
+      navigate("/");
     } catch (error) {
       console.log(error.response?.data);
 
