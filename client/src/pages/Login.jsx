@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Input, SocialBtn, Divider } from "../components/AuthShared";
 import { useState } from "react";
 import api from "../services/api";
-import { useAuth } from "../context/AuthContext"; // 1. Import your auth hook
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -21,14 +21,15 @@ export default function Login() {
       });
 
       console.log(data);
-
       localStorage.setItem("token", data.token);
+
       setUser(data.user);
-
       alert("Login Successfully");
-
-      // 5. Redirect the user so they don't get stuck staring at the login form
-      navigate("/");
+      if (data.user.role === "admin") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/");
+      }
     } catch (error) {
       console.log(error.response?.data);
       alert(
