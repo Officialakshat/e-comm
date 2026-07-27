@@ -21,6 +21,7 @@ import Dashboard from "./admin/Dashboard";
 function App() {
   return (
     <BrowserRouter>
+      {/* dafault layout */}
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
@@ -39,8 +40,13 @@ function App() {
           <Route path="privacy" element={<Privacy />} />
           <Route path="help" element={<Help />} />
           <Route path="conditions" element={<Conditions />} />
-          <Route path="/admin/dashboard" element={<Dashboard />} />
         </Route>
+      </Routes>
+
+      {/* admin layout */}
+      <Routes>
+        <Route path="admin" element={<Layout />}></Route>
+        <Route path="/admin/dashboard" element={<Dashboard />} />
       </Routes>
     </BrowserRouter>
   );
