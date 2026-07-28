@@ -9,7 +9,7 @@ import TopProducts from "../admin/TopProducts";
 import RecentOrders from "../admin/RecentOrders";
 import OrdersBarChart from "../admin/OrdersBarChart";
 
-export default function AdminDashboard() {
+export default function Dashboard() {
   const [collapsed, setCollapsed] = useState(false);
   const [active, setActive] = useState("Dashboard");
 

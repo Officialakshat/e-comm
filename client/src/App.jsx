@@ -17,6 +17,7 @@ import Help from "./pages/Help";
 import Conditions from "./pages/Conditions";
 import MyOrders from "./pages/MyOrder";
 import Dashboard from "./admin/Dashboard";
+import AdminLayout from "./layout/AdminLayout";
 
 function App() {
   return (
@@ -45,8 +46,9 @@ function App() {
 
       {/* admin layout */}
       <Routes>
-        <Route path="admin" element={<Layout />}></Route>
-        <Route path="/admin/dashboard" element={<Dashboard />} />
+        <Route path="admin" element={<AdminLayout />}>
+          <Route path="/admin/dashboard" element={<Dashboard />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

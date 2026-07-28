@@ -9,11 +9,9 @@ export default function AdminSidebar({
 }) {
   return (
     <aside
-      className={`h-screen bg-[#1a1a1a] flex flex-col shrink-0 transition-all duration-300 ${
-        collapsed ? "w-16" : "w-56"
-      }`}
+      className={`h-screen bg-[#1a1a1a] flex flex-col shrink-0 transition-all duration-300 ${collapsed ? "w-16" : "w-56"}`}
     >
-      {/* ── Logo ── */}
+      {/* Logo + collapse button */}
       <div className="flex items-center gap-3 px-4 py-4 border-b border-white/10">
         <div className="w-8 h-8 rounded-xl bg-[#C9B194] flex items-center justify-center shrink-0">
           <span
@@ -23,8 +21,6 @@ export default function AdminSidebar({
             U
           </span>
         </div>
-
-        {/* Hide text when collapsed */}
         {!collapsed && (
           <span
             className="text-white font-bold text-[15px] truncate"
@@ -33,12 +29,9 @@ export default function AdminSidebar({
             UrbanMart
           </span>
         )}
-
-        {/* Collapse toggle arrow */}
         <button
           onClick={() => setCollapsed((c) => !c)}
           className="ml-auto text-gray-500 hover:text-white transition-colors shrink-0"
-          aria-label="Toggle sidebar"
         >
           <svg
             width="16"
@@ -57,17 +50,15 @@ export default function AdminSidebar({
         </button>
       </div>
 
-      {/* ── Nav links ── */}
+      {/* Nav links */}
       <nav className="flex-1 overflow-y-auto py-3 space-y-4">
         {sidebarGroups.map((group) => (
           <div key={group.section}>
-            {/* Section label — hidden when collapsed */}
             {!collapsed && (
               <p className="text-[9px] font-semibold text-gray-600 uppercase tracking-widest px-4 mb-1">
                 {group.section}
               </p>
             )}
-
             {group.items.map((item) => (
               <button
                 key={item.label}
@@ -86,7 +77,7 @@ export default function AdminSidebar({
         ))}
       </nav>
 
-      {/* ── Admin info footer ── */}
+      {/* Admin footer */}
       {!collapsed && (
         <div className="px-4 py-3 border-t border-white/10 flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-full bg-[#C9B194] flex items-center justify-center text-[10px] font-bold text-white shrink-0">
