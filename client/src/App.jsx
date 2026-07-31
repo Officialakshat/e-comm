@@ -16,8 +16,8 @@ import Privacy from "./pages/Privacy";
 import Help from "./pages/Help";
 import Conditions from "./pages/Conditions";
 import MyOrders from "./pages/MyOrder";
-import Dashboard from "./admin/Dashboard";
 import AdminLayout from "./layout/AdminLayout";
+import Dashboard from "./admin/Dashboard";
 
 function App() {
   return (
@@ -42,13 +42,10 @@ function App() {
           <Route path="help" element={<Help />} />
           <Route path="conditions" element={<Conditions />} />
         </Route>
-      </Routes>
 
-      {/* admin layout */}
-      <Routes>
-        <Route path="admin" element={<AdminLayout />}>
-          <Route path="/admin/dashboard" element={<Dashboard />} />
-        </Route>
+        {/* admin layout */}
+
+        <Route path="/admin" element={<AdminLayout />}></Route>
       </Routes>
     </BrowserRouter>
   );

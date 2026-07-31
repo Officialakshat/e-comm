@@ -5,12 +5,12 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import App from "./App.jsx";
 import { CartProvider } from "./context/CartContext.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx";
+import AdminLayout from "./layout/AdminLayout.jsx";
 
 createRoot(document.getElementById("root")).render(
   <CartProvider>
     <StrictMode>
       <AuthProvider>
-        {" "}
         <App />
       </AuthProvider>
     </StrictMode>

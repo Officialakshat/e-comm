@@ -26,7 +26,7 @@ export default function Login() {
       setUser(data.user);
       alert("Login Successfully");
       if (data.user.role === "admin") {
-        navigate("/admin/dashboard");
+        navigate("/admin");
       } else {
         navigate("/");
       }

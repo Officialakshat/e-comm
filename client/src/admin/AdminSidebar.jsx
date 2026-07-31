@@ -9,7 +9,21 @@ export default function AdminSidebar({
 }) {
   return (
     <aside
-      className={`h-screen bg-[#1a1a1a] flex flex-col shrink-0 transition-all duration-300 ${collapsed ? "w-16" : "w-56"}`}
+      className={`
+    fixed lg:static
+    top-0 left-0
+    h-screen
+    bg-[#1a1a1a]
+    flex flex-col
+    shrink-0
+    z-50
+    transition-all duration-300
+    ${
+      collapsed
+        ? "w-16 -translate-x-full lg:translate-x-0"
+        : "w-64 translate-x-0"
+    }
+  `}
     >
       {/* Logo + collapse button */}
       <div className="flex items-center gap-3 px-4 py-4 border-b border-white/10">
