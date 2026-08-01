@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
-import AdminHeader from "../admin/AdminHeader";
-import AdminSidebar from "../admin/AdminSidebar";
+import Dashboard from "../admin/Dashboard";
+import AdminHeader from "../components/AdminHeader";
+import AdminSidebar from "../components/AdminSidebar";
 
 function AdminLayout() {
   return (
@@ -12,6 +13,7 @@ function AdminLayout() {
 
         <main className="flex-1 overflow-auto">
           <Outlet />
+          <Dashboard />
         </main>
       </div>
     </div>

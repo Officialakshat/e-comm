@@ -12,7 +12,7 @@ export default function AdminSidebar({
       className={`
     fixed lg:static
     top-0 left-0
-    h-screen
+    h-full
     bg-[#1a1a1a]
     flex flex-col
     shrink-0

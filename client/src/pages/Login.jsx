@@ -21,7 +21,7 @@ export default function Login() {
       });
 
       console.log(data);
-      localStorage.setItem("token", data.token);
+      localStorage.setItem("token", data.user.token);
 
       setUser(data.user);
       alert("Login Successfully");

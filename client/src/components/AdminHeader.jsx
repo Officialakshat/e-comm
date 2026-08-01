@@ -1,10 +1,10 @@
-// admin/AdminHeader.jsx
 import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 export default function AdminHeader({ onSearch }) {
   const [query, setQuery] = useState("");
   const [showNotifs, setShowNotifs] = useState(false);
-
+  const { user } = useAuth();
   const notifications = [
     {
       id: 1,
@@ -132,14 +132,16 @@ export default function AdminHeader({ onSearch }) {
         {/* Admin profile */}
         <div className="flex items-center gap-2 cursor-pointer group">
           <div className="w-7 h-7 rounded-full bg-[#C9B194] flex items-center justify-center">
-            <span className="text-white text-[10px] font-bold">A</span>
+            <span className="text-white text-[10px] font-bold">
+              {user?.name?.charAt(0).toUpperCase()}
+            </span>
           </div>
           <div className="hidden sm:block">
             <p className="text-[12px] font-semibold text-gray-800 leading-none">
-              Admin User
+              {user?.name || "Admmmin"}
             </p>
             <p className="text-[10px] text-gray-500 leading-none mt-0.5">
-              Super Admin
+              {user?.role}
             </p>
           </div>
           <svg
