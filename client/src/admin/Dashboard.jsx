@@ -5,6 +5,7 @@ import SalesChart from "../admin/SalesChart";
 import TopProducts from "../admin/TopProducts";
 import RecentOrders from "../admin/RecentOrders";
 import OrdersBarChart from "../admin/OrdersBarChart";
+import Products from "../admin/products";
 
 export default function Dashboard() {
   return (
