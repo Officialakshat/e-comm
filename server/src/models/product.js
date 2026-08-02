@@ -5,13 +5,16 @@ const productSchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
+      trim: true,
     },
+
     description: {
       type: String,
-      reqired: true,
+      required: true,
     },
-    price: {
-      type: Number,
+
+    brand: {
+      type: String,
       required: true,
     },
 
@@ -19,9 +22,14 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    stock: {
+
+    price: {
       type: Number,
       required: true,
+    },
+
+    stock: {
+      type: Number,
       default: 0,
     },
 
@@ -29,10 +37,22 @@ const productSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+
+    featured: {
+      type: Boolean,
+      default: false,
     },
+
+    newArrival: {
+      type: Boolean,
+      default: false,
+    },
+
+    bestDeal: {
+      type: Boolean,
+      default: false,
+    },
+
     rating: {
       type: Number,
       default: 0,
@@ -41,6 +61,11 @@ const productSchema = new mongoose.Schema(
     numReviews: {
       type: Number,
       default: 0,
+    },
+
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
   },
   {

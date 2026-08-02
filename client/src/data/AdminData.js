@@ -258,6 +258,11 @@ const sidebarGroups = [
         path: "/admin/TopProducts",
         icon: "📦",
       },
+      {
+        label: "Top Products",
+        path: "",
+        icon: "",
+      },
     ],
   },
 ];
