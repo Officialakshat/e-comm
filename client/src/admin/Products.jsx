@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getProducts } from "../services/products";
-import ProductTable from "../components/ProductTable";
+import ProductsTable from "../components/ProductsTable";
 
 export default function Products() {
   const [products, setProducts] = useState([]);
@@ -45,7 +45,7 @@ export default function Products() {
         </button>
       </div>
 
-      <ProductTable products={products} />
+      <ProductsTable products={products} />
     </div>
   );
 }

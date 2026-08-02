@@ -18,6 +18,11 @@ import Conditions from "./pages/Conditions";
 import MyOrders from "./pages/MyOrder";
 import AdminLayout from "./layout/AdminLayout";
 import Dashboard from "./admin/Dashboard";
+import Products from "./admin/Products";
+import AdminOrdersPanel from "./admin/OrdersBarChart";
+import Users from "./admin/Users";
+import TopProducts from "./admin/TopProducts";
+import AdminCategory from "./admin/AdminCategory";
 
 function App() {
   return (
@@ -45,7 +50,15 @@ function App() {
 
         {/* admin layout */}
 
-        <Route path="/admin" element={<AdminLayout />}></Route>
+        <Route path="/admin" element={<AdminLayout />}>
+          p
+          <Route index element={<Dashboard />} />
+          <Route path="products" element={<Products />} />
+          <Route path="orders" element={<AdminOrdersPanel />} />
+          <Route path="users" element={<Users />} />
+          <Route path="topProducts" element={<TopProducts />} />
+          <Route path="Categories" element={<AdminCategory />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

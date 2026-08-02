@@ -228,26 +228,36 @@ const sidebarGroups = [
   {
     section: "MAIN",
     items: [
-      { icon: "⊞", label: "Dashboard" },
-      { icon: "📦", label: "Orders" },
-      { icon: "🏷️", label: "Products" },
-      { icon: "👥", label: "Customers" },
-    ],
-  },
-  {
-    section: "CATALOG",
-    items: [
-      { icon: "📂", label: "Categories" },
-      { icon: "🌟", label: "Brands" },
-      { icon: "🎁", label: "Deals" },
-    ],
-  },
-  {
-    section: "REPORTS",
-    items: [
-      { icon: "📊", label: "Analytics" },
-      { icon: "💳", label: "Revenue" },
-      { icon: "⚙️", label: "Settings" },
+      {
+        label: "Dashboard",
+        path: "/admin",
+        icon: "🏠",
+      },
+      {
+        label: "Products",
+        path: "/admin/products",
+        icon: "📦",
+      },
+      {
+        label: "Categories",
+        path: "/admin/categories",
+        icon: "📂",
+      },
+      {
+        label: "Orders",
+        path: "/admin/orders",
+        icon: "🛒",
+      },
+      {
+        label: "Users",
+        path: "/admin/users",
+        icon: "👥",
+      },
+      {
+        label: "Top Products",
+        path: "/admin/TopProducts",
+        icon: "📦",
+      },
     ],
   },
 ];
