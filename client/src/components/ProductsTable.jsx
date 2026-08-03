@@ -69,7 +69,10 @@ export default function ProductsTable({ products }) {
                     Edit
                   </button>
 
-                  <button className="bg-red-500 text-white px-3 py-1 rounded">
+                  <button
+                    onClick={() => navigate("/admin/deleteProduct")}
+                    className="bg-red-500 text-white px-3 py-1 rounded"
+                  >
                     Delete
                   </button>
                 </div>

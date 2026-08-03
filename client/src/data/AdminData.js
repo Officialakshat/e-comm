@@ -239,6 +239,11 @@ const sidebarGroups = [
         icon: "📦",
       },
       {
+        label: "Top Products",
+        path: "/admin/topProducts",
+        icon: "📦",
+      },
+      {
         label: "Categories",
         path: "/admin/categories",
         icon: "📂",
@@ -252,16 +257,6 @@ const sidebarGroups = [
         label: "Users",
         path: "/admin/users",
         icon: "👥",
-      },
-      {
-        label: "Top Products",
-        path: "/admin/TopProducts",
-        icon: "📦",
-      },
-      {
-        label: "Top Products",
-        path: "",
-        icon: "",
       },
     ],
   },

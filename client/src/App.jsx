@@ -25,6 +25,7 @@ import TopProducts from "./admin/TopProducts";
 import AdminCategory from "./admin/AdminCategory";
 import AddProduct from "./admin/AddProducts";
 import EditProducts from "./admin/EditProducts";
+import DeleteProduct from "./admin/DeleteProducts";
 
 function App() {
   return (
@@ -58,6 +59,7 @@ function App() {
           <Route path="orders" element={<AdminOrdersPanel />} />
           <Route path="users" element={<Users />} />
           <Route path="editProduct" element={<EditProducts />} />
+          <Route path="deleteProduct" element={<DeleteProduct />} />
           <Route path="addProducts" element={<AddProduct />} />
           <Route path="topProducts" element={<TopProducts />} />
           <Route path="Categories" element={<AdminCategory />} />
