@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { getProducts } from "../services/products";
-import ProductsTable from "./components/ProductsTable";
+
 import { useNavigate } from "react-router-dom";
+import ProductsTable from "./components/ProductsTable";
 
 export default function Products() {
   const [products, setProducts] = useState([]);
