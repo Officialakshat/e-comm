@@ -12,12 +12,12 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false); // Track dropdown visibility
+  const [profileOpen, setProfileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   const mobileSearchRef = useRef(null);
-  const profileContainerRef = useRef(null); // Ref to capture outside z
+  const profileContainerRef = useRef(null);
 
   const cartCount = useCart();
   const navigate = useNavigate();

@@ -1,4 +1,7 @@
+import { useNavigate } from "react-router-dom";
+
 export default function ProductsTable({ products }) {
+  const navigate = useNavigate();
   if (products.length === 0) {
     return (
       <div className="text-center py-20">
@@ -59,7 +62,10 @@ export default function ProductsTable({ products }) {
 
               <td className="px-4 py-3">
                 <div className="flex justify-center gap-2">
-                  <button className="bg-blue-500 text-white px-3 py-1 rounded">
+                  <button
+                    onClick={() => navigate("/admin/EditProduct")}
+                    className="bg-blue-500 text-white px-3 py-1 rounded"
+                  >
                     Edit
                   </button>
 

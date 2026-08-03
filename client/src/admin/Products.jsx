@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { getProducts } from "../services/products";
 import ProductsTable from "../components/ProductsTable";
+import { useNavigate } from "react-router-dom";
 
 export default function Products() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchProducts();
@@ -40,7 +43,10 @@ export default function Products() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Products</h1>
 
-        <button className="bg-black text-white px-4 py-2 rounded-lg">
+        <button
+          onClick={() => navigate("/admin/addProducts")}
+          className="bg-black text-white px-4 py-2 rounded-lg"
+        >
           + Add Product
         </button>
       </div>
