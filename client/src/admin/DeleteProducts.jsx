@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { initialProducts, productStatusStyle } from "../data/adminData";
+import { useEffect, useState } from "react";
+import { getProducts, deleteProduct } from "../services/products";
 
 function ConfirmModal({ product, onConfirm, onCancel }) {
   const [typing, setTyping] = useState("");
@@ -115,10 +115,26 @@ function ConfirmModal({ product, onConfirm, onCancel }) {
 
 // ── Main DeleteProduct page ───────────────────────────────
 export default function DeleteProduct() {
-  const [products, setProducts] = useState(initialProducts);
-  const [toDelete, setToDelete] = useState(null); // product pending delete
-  const [deletedIds, setDeletedIds] = useState([]); // for flash animation
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [toDelete, setToDelete] = useState(null);
+  const [deletedIds, setDeletedIds] = useState([]);
   const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const data = await getProducts();
+      setProducts(data.products);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const visible = products.filter(
     (p) =>
@@ -126,18 +142,26 @@ export default function DeleteProduct() {
       p.category.toLowerCase().includes(search.toLowerCase()),
   );
 
-  const confirmDelete = () => {
-    setDeletedIds((prev) => [...prev, toDelete.id]);
-    setTimeout(() => {
-      setProducts((prev) => prev.filter((p) => p.id !== toDelete.id));
-      setDeletedIds((prev) => prev.filter((id) => id !== toDelete.id));
+  const confirmDelete = async () => {
+    try {
+      await deleteProduct(toDelete._id);
+
+      setProducts((prev) =>
+        prev.filter((product) => product._id !== toDelete._id),
+      );
+
       setToDelete(null);
-    }, 400);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const stockColor = (s) =>
     s === 0 ? "text-red-500" : s <= 5 ? "text-yellow-600" : "text-green-600";
 
+  if (loading) {
+    return <div className="p-8">Loading products...</div>;
+  }
   return (
     <div className="min-h-screen bg-[#f8f6f3] p-5 sm:p-8">
       <div className="max-w-5xl mx-auto">
@@ -203,7 +227,7 @@ export default function DeleteProduct() {
                 ) : (
                   visible.map((p) => (
                     <tr
-                      key={p.id}
+                      key={p._id}
                       className={`transition-all duration-300 ${
                         deletedIds.includes(p.id)
                           ? "opacity-0 scale-95"
@@ -213,7 +237,7 @@ export default function DeleteProduct() {
                       <td className="px-5 py-3">
                         <div className="flex items-center gap-3">
                           <img
-                            src={p.img}
+                            src={p.image}
                             alt={p.name}
                             className="w-9 h-9 rounded-xl object-cover bg-[#fdf5ec] shrink-0"
                           />
@@ -235,9 +259,13 @@ export default function DeleteProduct() {
                       </td>
                       <td className="px-5 py-3">
                         <span
-                          className={`text-[10px] font-semibold px-2.5 py-1 rounded-full ${productStatusStyle[p.status]}`}
+                          className={`text-[10px] font-semibold px-2 py-1 rounded-full ${
+                            p.stock > 0
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                          }`}
                         >
-                          {p.status}
+                          {p.stock > 0 ? "In Stock" : "Out of Stock"}
                         </span>
                       </td>
                       <td className="px-5 py-3">

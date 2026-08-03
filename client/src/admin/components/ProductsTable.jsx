@@ -36,11 +36,9 @@ export default function ProductsTable({ products }) {
             <tr key={product._id} className="border-b hover:bg-gray-50">
               <td className="px-4 py-3">
                 <img
-                  src={
-                    product.images?.[0]?.url || "https://via.placeholder.com/60"
-                  }
+                  src={product.image || "https://via.placeholder.com/60"}
                   alt={product.name}
-                  className="w-16 h-16 object-cover rounded"
+                  className="w-16 h-16 object-cover rounded-lg border"
                 />
               </td>
 
@@ -63,7 +61,9 @@ export default function ProductsTable({ products }) {
               <td className="px-4 py-3">
                 <div className="flex justify-center gap-2">
                   <button
-                    onClick={() => navigate("/admin/EditProduct")}
+                    onClick={() =>
+                      navigate(`/admin/products/editProduct/${product._id}`)
+                    }
                     className="bg-blue-500 text-white px-3 py-1 rounded"
                   >
                     Edit

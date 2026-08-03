@@ -1,5 +1,6 @@
 // admin/EditProduct.jsx
 import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 
 const categories = [
   "Lighting",
@@ -18,6 +19,7 @@ export default function EditProducts({ product, onSave, onCancel }) {
   const [preview, setPreview] = useState(null);
   const [errors, setErrors] = useState({});
   const [saved, setSaved] = useState(false);
+  const { id } = useParams();
 
   // Pre-fill form when product prop changes
   useEffect(() => {
