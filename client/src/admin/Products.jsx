@@ -78,7 +78,7 @@ export default function Products() {
       <ProductsTable
         products={products}
         onEdit={setEditingProduct}
-        onDelete={setDeletingProduct}
+        onDelete={handleDelete}
       />
 
       {/* Edit Modal */}
