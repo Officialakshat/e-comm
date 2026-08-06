@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import { getProducts } from "../services/products";
-
 import { useNavigate } from "react-router-dom";
 import ProductsTable from "./components/ProductsTable";
+import EditProductModal from "./EditProducts";
 
 export default function Products() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [deletingProduct, setDeletingProduct] = useState(null);
 
   const navigate = useNavigate();
 
@@ -52,7 +54,29 @@ export default function Products() {
         </button>
       </div>
 
-      <ProductsTable products={products} />
+      <ProductsTable
+        products={products}
+        onEdit={setEditingProduct}
+        onDelete={setDeletingProduct}
+      />
+
+      {/* Edit Modal */}
+      {editingProduct && (
+        <EditProductModal
+          product={editingProduct}
+          onClose={() => setEditingProduct(null)}
+          onSave={fetchProducts}
+        />
+      )}
+
+      {/* Delete Modal */}
+      {deletingProduct && (
+        <DeleteProductModal
+          product={deletingProduct}
+          onClose={() => setDeletingProduct(null)}
+          refreshProducts={fetchProducts}
+        />
+      )}
     </div>
   );
 }

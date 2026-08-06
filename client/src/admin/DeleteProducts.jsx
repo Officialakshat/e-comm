@@ -46,7 +46,7 @@ function ConfirmModal({ product, onConfirm, onCancel }) {
         {/* Product preview */}
         <div className="flex items-center gap-3 bg-[#fdf9f5] border border-[#ede5da] rounded-2xl p-3 mb-5">
           <img
-            src={product.img}
+            src={product.image}
             alt={product.name}
             className="w-12 h-12 rounded-xl object-cover bg-[#fdf5ec] shrink-0"
           />
