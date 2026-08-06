@@ -1,5 +1,6 @@
 // admin/AddProduct.jsx
 import { useState } from "react";
+import { createProduct, uploadImage } from "../services/products";
 
 const categories = [
   "Lighting",
@@ -26,23 +27,25 @@ const empty = {
 
 export default function AddProduct({ onAdd, onCancel }) {
   const [form, setForm] = useState(empty);
-  const [preview, setPreview] = useState(null); // image preview URL
+  const [preview, setPreview] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
   const [errors, setErrors] = useState({});
   const [saved, setSaved] = useState(false);
 
   // Update one field
   const set = (key, val) => {
     setForm((f) => ({ ...f, [key]: val }));
-    setErrors((e) => ({ ...e, [key]: "" })); // clear error on type
+    setErrors((e) => ({ ...e, [key]: "" }));
   };
 
-  // Image file → preview
   const handleImage = (e) => {
     const file = e.target.files[0];
-    if (file) setPreview(URL.createObjectURL(file));
-  };
 
-  // Validate required fields
+    if (!file) return;
+
+    setImageFile(file);
+    setPreview(URL.createObjectURL(file));
+  };
   const validate = () => {
     const e = {};
     if (!form.name.trim()) e.name = "Product name is required";
@@ -54,34 +57,37 @@ export default function AddProduct({ onAdd, onCancel }) {
     return Object.keys(e).length === 0;
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!validate()) return;
+  const handleSubmit = async (e) => {
+    try {
+      let imageUrl = "";
 
-    const newProduct = {
-      id: Date.now(),
-      name: form.name.trim(),
-      category: form.category,
-      price: Number(form.price),
-      original: form.original ? Number(form.original) : null,
-      stock: Number(form.stock),
-      tag: form.tag,
-      description: form.description,
-      status: form.status,
-      img:
-        preview ||
-        "https://images.unsplash.com/photo-1602607144573-ebb29eda0c4d?w=300&q=80",
-      rating: 0,
-      reviews: 0,
-    };
+      if (imageFile) {
+        imageUrl = await uploadImage(imageFile);
+      }
 
-    if (onAdd) onAdd(newProduct);
-    setSaved(true);
-    setTimeout(() => {
-      setSaved(false);
-      setForm(empty);
-      setPreview(null);
-    }, 2000);
+      const newProduct = {
+        name: form.name,
+        description: form.description,
+        category: form.category,
+        price: Number(form.price),
+        stock: Number(form.stock),
+        image: imageUrl,
+      };
+
+      await createProduct(newProduct);
+
+      setSaved(true);
+
+      setTimeout(() => {
+        setSaved(false);
+        setForm(empty);
+        setPreview(null);
+        setImageFile(null);
+      }, 2000);
+    } catch (err) {
+      console.log(err);
+      alert("Failed to create product");
+    }
   };
 
   return (
