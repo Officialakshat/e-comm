@@ -1,5 +1,6 @@
 // admin/TopProducts.jsx
-import { topProducts } from "./data/AdminData";
+
+import { topProducts } from "../data/AdminData";
 
 export default function TopProducts() {
   return (

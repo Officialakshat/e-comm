@@ -1,6 +1,6 @@
 // admin/Users.jsx
 import { useState } from "react";
-import { initialCustomers, badgeStyle } from "../data/adminData";
+import { badgeStyle, initialCustomers } from "../data/AdminData";
 
 // ── Delete confirm modal ────────────────────────────────
 function DeleteModal({ user, onConfirm, onCancel }) {

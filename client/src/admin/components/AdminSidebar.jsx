@@ -1,7 +1,7 @@
 // admin/AdminSidebar.jsx
 
 import { NavLink } from "react-router-dom";
-import { sidebarGroups } from "../../data/adminData";
+import { sidebarGroups } from "../../data/AdminData";
 
 export default function AdminSidebar({ collapsed, setCollapsed }) {
   return (

@@ -9,7 +9,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { revenueData } from "../data/adminData";
+import { revenueData } from "../data/AdminData";
 
 export default function SalesChart() {
   // Toggle between Revenue and Orders view

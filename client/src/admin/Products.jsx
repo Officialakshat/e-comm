@@ -48,7 +48,7 @@ export default function Products() {
 
         <button
           onClick={() => navigate("/admin/addProducts")}
-          className="bg-black text-white px-4 py-2 rounded-lg"
+          className="bg-black text-white px-4 cursor-pointer py-2 rounded-lg"
         >
           + Add Product
         </button>

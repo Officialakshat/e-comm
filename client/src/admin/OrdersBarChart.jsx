@@ -1,6 +1,6 @@
 // admin/AdminOrdersPanel.jsx
 import { useState } from "react";
-import { initialOrders, statusStyle } from "../data/adminData";
+import { initialOrders, statusStyle } from "../data/AdminData";
 
 const ALL_STATUSES = ["All", "Processing", "Shipped", "Delivered", "Cancelled"];
 

@@ -1,5 +1,4 @@
-// admin/RecentOrders.jsx
-import { recentOrders, statusStyle } from "../data/adminData";
+import { recentOrders, statusStyle } from "../data/AdminData";
 
 export default function RecentOrders() {
   return (

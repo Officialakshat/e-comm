@@ -135,7 +135,8 @@ exports.updateProduct = async (req, res) => {
     }
 
     product = await Product.findByIdAndUpdate(req.params.id, req.body, {
-      returnDocument: "after",
+      new: true,
+      runValidators: true,
     });
 
     res.json({

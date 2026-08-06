@@ -1,3 +1,4 @@
+// components/EditProductModal.jsx
 import { useState, useEffect, useRef } from "react";
 import { updateProduct } from "../services/products";
 
@@ -13,37 +14,109 @@ const CATEGORIES = [
   "Office",
 ];
 
+// ── Reusable field components ─────────────────────────────
+function Field({ label, required, error, children }) {
+  return (
+    <div>
+      <label className="text-[11px] font-medium text-gray-500 uppercase tracking-wider block mb-1">
+        {label} {required && <span className="text-red-400">*</span>}
+      </label>
+      {children}
+      {error && <p className="text-[10px] text-red-500 mt-1">{error}</p>}
+    </div>
+  );
+}
+
+const inputCls = (err) =>
+  `w-full bg-[#fdf9f5] border rounded-xl px-4 py-2.5 text-[13px] text-gray-800 outline-none transition-all ${
+    err
+      ? "border-red-400 focus:border-red-400 focus:ring-2 focus:ring-red-100"
+      : "border-[#ede5da] focus:border-[#C9B194] focus:ring-2 focus:ring-[#C9B19425]"
+  }`;
+
+// ── Toggle switch ─────────────────────────────────────────
+function Toggle({ label, desc, value, onChange }) {
+  return (
+    <div className="flex items-center justify-between py-2.5 border-b border-[#f5ede0] last:border-0">
+      <div>
+        <p className="text-[13px] font-medium text-gray-800">{label}</p>
+        <p className="text-[10px] text-gray-400">{desc}</p>
+      </div>
+      <button
+        type="button"
+        onClick={() => onChange(!value)}
+        className={`relative w-10 h-5 rounded-full transition-colors duration-300 shrink-0 ${
+          value ? "bg-[#C9B194]" : "bg-gray-200"
+        }`}
+      >
+        <span
+          className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-300 ${
+            value ? "translate-x-5" : "translate-x-0"
+          }`}
+        />
+      </button>
+    </div>
+  );
+}
+
+// ── Section heading inside modal ──────────────────────────
+function SectionLabel({ children }) {
+  return (
+    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mt-5 mb-3">
+      {children}
+    </p>
+  );
+}
+
+// ── Main Modal ────────────────────────────────────────────
+const EMPTY = {
+  name: "",
+  description: "",
+  brand: "",
+  category: "",
+  price: "",
+  stock: "",
+  image: "",
+  featured: false,
+  newArrival: false,
+  bestDeal: false,
+};
+
 export default function EditProductModal({ product, onSave, onClose }) {
-  const [form, setForm] = useState({});
+  const [form, setForm] = useState(EMPTY);
   const [preview, setPreview] = useState(null);
   const [errors, setErrors] = useState({});
+  const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const overlayRef = useRef(null);
 
+  // Pre-fill when product changes
   useEffect(() => {
     if (!product) return;
     setForm({
-      name: product.name || "",
-      category: product.category || "",
-      price: product.price || "",
-      original: product.original || "",
-      stock: product.stock || "",
-      tag: product.tag || "",
-      description: product.description || "",
-      status: product.status || "Active",
+      name: product.name ?? "",
+      description: product.description ?? "",
+      brand: product.brand ?? "",
+      category: product.category ?? "",
+      price: product.price ?? "",
+      stock: product.stock ?? "",
+      image: product.image ?? "",
+      featured: product.featured ?? false,
+      newArrival: product.newArrival ?? false,
+      bestDeal: product.bestDeal ?? false,
     });
     setPreview(product.image || null);
     setErrors({});
     setSaved(false);
   }, [product]);
 
-  // Close on Escape key
+  // Close on Escape
   useEffect(() => {
-    const handler = (e) => {
+    const h = (e) => {
       if (e.key === "Escape") onClose();
     };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
   }, [onClose]);
 
   if (!product) return null;
@@ -60,11 +133,12 @@ export default function EditProductModal({ product, onSave, onClose }) {
 
   const validate = () => {
     const e = {};
-    if (!form.name?.trim()) e.name = "Product name is required";
+    if (!form.name.trim()) e.name = "Name is required";
+    if (!form.description.trim()) e.description = "Description is required";
+    if (!form.brand.trim()) e.brand = "Brand is required";
     if (!form.category) e.category = "Select a category";
-    if (!form.price || isNaN(form.price) || Number(form.price) <= 0)
-      e.price = "Enter a valid price";
-    if (!form.stock || isNaN(form.stock)) e.stock = "Stock is required";
+    if (!form.price || Number(form.price) <= 0) e.price = "Enter a valid price";
+    if (form.stock === "" || isNaN(form.stock)) e.stock = "Stock is required";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -72,46 +146,44 @@ export default function EditProductModal({ product, onSave, onClose }) {
   const handleSave = async (e) => {
     e.preventDefault();
     if (!validate()) return;
+
     const updated = {
       ...product,
       name: form.name.trim(),
+      description: form.description.trim(),
+      brand: form.brand.trim(),
       category: form.category,
       price: Number(form.price),
-      original: form.original ? Number(form.original) : null,
       stock: Number(form.stock),
-      tag: form.tag,
-      description: form.description,
-      status: form.status,
-      image: preview || <product className="image"></product>,
+      image: preview || product.image,
+      featured: form.featured,
+      newArrival: form.newArrival,
+      bestDeal: form.bestDeal,
     };
+
     try {
+      setSaving(true);
       await updateProduct(product._id, updated);
-
       setSaved(true);
-
-      if (onSave) {
-        await onSave();
-      }
-
+      if (onSave) await onSave();
       setTimeout(() => {
         setSaved(false);
         onClose();
-      }, 1200);
+      }, 1400);
     } catch (err) {
-      console.log(err);
-
-      alert("Failed to update product");
+      console.error(err);
+      alert("Failed to update product. Please try again.");
+    } finally {
+      setSaving(false);
     }
   };
 
-  // Discount preview
   const discount =
     form.price && form.original && Number(form.original) > Number(form.price)
       ? Math.round((1 - Number(form.price) / Number(form.original)) * 100)
       : null;
 
   return (
-    // Overlay — click outside to close
     <div
       ref={overlayRef}
       onClick={(e) => {
@@ -119,8 +191,7 @@ export default function EditProductModal({ product, onSave, onClose }) {
       }}
       className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/45 backdrop-blur-[2px] animate-[fadeIn_0.2s_ease]"
     >
-      {/* Modal card */}
-      <div className="bg-white rounded-[20px] border border-[#ede5da] w-full max-w-[560px] max-h-[90vh] overflow-y-auto shadow-2xl animate-[modalIn_0.28s_cubic-bezier(0.34,1.3,0.64,1)]">
+      <div className="bg-white rounded-[20px] border border-[#ede5da] w-full max-w-[600px] max-h-[92vh] overflow-y-auto shadow-2xl animate-[modalIn_0.28s_cubic-bezier(0.34,1.3,0.64,1)]">
         {/* ── HEADER ── */}
         <div className="sticky top-0 z-10 bg-white flex items-center justify-between px-5 py-4 border-b border-[#f5ede0] rounded-t-[20px]">
           <div>
@@ -131,7 +202,7 @@ export default function EditProductModal({ product, onSave, onClose }) {
               Edit product
             </h2>
             <p className="text-[11px] text-gray-400 mt-0.5">
-              Changes are saved to the product catalog
+              All fields marked * are required
             </p>
           </div>
           <button
@@ -153,165 +224,156 @@ export default function EditProductModal({ product, onSave, onClose }) {
 
         {/* ── PRODUCT PEEK ── */}
         <div className="mx-5 mt-4 flex items-center gap-3 bg-[#fdf9f5] border border-[#ede5da] rounded-2xl p-3">
-          <img
-            src={preview || product.image}
-            alt={form.name}
-            className="w-11 h-11 rounded-xl object-cover bg-[#fdf5ec] shrink-0 border border-[#ede5da]"
-          />
+          <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0 border border-[#ede5da] bg-[#fdf5ec]">
+            {preview ? (
+              <img
+                src={preview}
+                alt={form.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-[#C9B194] opacity-50">
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                >
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <circle cx="8.5" cy="8.5" r="1.5" />
+                  <polyline points="21 15 16 10 5 21" />
+                </svg>
+              </div>
+            )}
+          </div>
           <div className="min-w-0 flex-1">
             <p className="text-[13px] font-semibold text-gray-800 truncate">
               {form.name || "Untitled product"}
             </p>
             <p className="text-[11px] text-gray-400">
-              {form.category || "No category"} · ID #
-              {String(product.id).padStart(4, "0")}
+              {form.brand || "No brand"} · {form.category || "No category"}
             </p>
           </div>
-          <span className="text-[9px] font-semibold bg-[#fdf0e2] text-[#9a7f5e] border border-[#e8d5bb] px-2.5 py-1 rounded-full shrink-0">
-            {form.status}
-          </span>
+          <div className="flex gap-1.5 flex-wrap justify-end shrink-0">
+            {form.featured && (
+              <span className="text-[9px] font-semibold bg-[#fdf0e2] text-[#9a7f5e] border border-[#e8d5bb] px-2 py-0.5 rounded-full">
+                Featured
+              </span>
+            )}
+            {form.newArrival && (
+              <span className="text-[9px] font-semibold bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full">
+                New
+              </span>
+            )}
+            {form.bestDeal && (
+              <span className="text-[9px] font-semibold bg-red-50 text-red-600 border border-red-200 px-2 py-0.5 rounded-full">
+                Deal
+              </span>
+            )}
+          </div>
         </div>
 
         {/* ── FORM ── */}
         <form onSubmit={handleSave} className="px-5 pb-5">
-          {/* Basic Info */}
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mt-5 mb-3">
-            Basic information
-          </p>
+          {/* ─ Basic Info ─ */}
+          <SectionLabel>Basic information</SectionLabel>
           <div className="grid grid-cols-2 gap-3">
-            {/* Name - full width */}
             <div className="col-span-2">
-              <label className="text-[11px] font-medium text-gray-500 uppercase tracking-wider block mb-1">
-                Product name <span className="text-red-400">*</span>
-              </label>
-              <input
-                value={form.name || ""}
-                onChange={(e) => set("name", e.target.value)}
-                className={`w-full bg-[#fdf9f5] border rounded-xl px-4 py-2.5 text-[13px] text-gray-800 outline-none transition-all ${
-                  errors.name
-                    ? "border-red-400 focus:border-red-400 focus:ring-2 focus:ring-red-100"
-                    : "border-[#ede5da] focus:border-[#C9B194] focus:ring-2 focus:ring-[#C9B19425]"
-                }`}
-              />
-              {errors.name && (
-                <p className="text-[10px] text-red-500 mt-1">{errors.name}</p>
-              )}
+              <Field label="Product name" required error={errors.name}>
+                <input
+                  value={form.name}
+                  onChange={(e) => set("name", e.target.value)}
+                  placeholder="e.g. Ceramic Table Lamp"
+                  className={inputCls(errors.name)}
+                />
+              </Field>
             </div>
 
-            {/* Category */}
-            <div>
-              <label className="text-[11px] font-medium text-gray-500 uppercase tracking-wider block mb-1">
-                Category <span className="text-red-400">*</span>
-              </label>
+            <Field label="Brand" required error={errors.brand}>
+              <input
+                value={form.brand}
+                onChange={(e) => set("brand", e.target.value)}
+                placeholder="e.g. IKEA, Sony"
+                className={inputCls(errors.brand)}
+              />
+            </Field>
+
+            <Field label="Category" required error={errors.category}>
               <select
-                value={form.category || ""}
+                value={form.category}
                 onChange={(e) => set("category", e.target.value)}
-                className={`w-full bg-[#fdf9f5] border rounded-xl px-4 py-2.5 text-[13px] text-gray-800 outline-none transition-all ${
-                  errors.category
-                    ? "border-red-400"
-                    : "border-[#ede5da] focus:border-[#C9B194]"
-                }`}
+                className={inputCls(errors.category)}
               >
                 <option value="">Select…</option>
                 {CATEGORIES.map((c) => (
                   <option key={c}>{c}</option>
                 ))}
               </select>
-              {errors.category && (
-                <p className="text-[10px] text-red-500 mt-1">
-                  {errors.category}
-                </p>
-              )}
-            </div>
+            </Field>
 
-            {/* Status */}
-            <div>
-              <label className="text-[11px] font-medium text-gray-500 uppercase tracking-wider block mb-1">
-                Status
-              </label>
-              <select
-                value={form.status || "Active"}
-                onChange={(e) => set("status", e.target.value)}
-                className="w-full bg-[#fdf9f5] border border-[#ede5da] rounded-xl px-4 py-2.5 text-[13px] text-gray-800 outline-none focus:border-[#C9B194] transition-all"
-              >
-                <option>Active</option>
-                <option>Low Stock</option>
-                <option>Out of Stock</option>
-              </select>
-            </div>
-
-            {/* Description */}
             <div className="col-span-2">
-              <label className="text-[11px] font-medium text-gray-500 uppercase tracking-wider block mb-1">
-                Description
-              </label>
-              <textarea
-                value={form.description || ""}
-                onChange={(e) => set("description", e.target.value)}
-                rows={3}
-                className="w-full bg-[#fdf9f5] border border-[#ede5da] rounded-xl px-4 py-2.5 text-[13px] text-gray-800 outline-none focus:border-[#C9B194] focus:ring-2 focus:ring-[#C9B19425] transition-all resize-none"
-              />
+              <Field label="Description" required error={errors.description}>
+                <textarea
+                  value={form.description}
+                  onChange={(e) => set("description", e.target.value)}
+                  placeholder="Short product description for customers…"
+                  rows={3}
+                  className={`${inputCls(errors.description)} resize-none`}
+                />
+              </Field>
             </div>
           </div>
 
-          {/* Pricing & Stock */}
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mt-5 mb-3">
-            Pricing and stock
-          </p>
+          {/* ─ Pricing & Stock ─ */}
+          <SectionLabel>Pricing and stock</SectionLabel>
           <div className="grid grid-cols-2 gap-3">
-            {[
-              { label: "Selling price (₹)", key: "price", required: true },
-              { label: "Original price (₹)", key: "original", required: false },
-              { label: "Stock quantity", key: "stock", required: true },
-              { label: "Badge tag", key: "tag", required: false },
-            ].map(({ label, key, required }) => (
-              <div key={key}>
-                <label className="text-[11px] font-medium text-gray-500 uppercase tracking-wider block mb-1">
-                  {label} {required && <span className="text-red-400">*</span>}
-                </label>
-                <input
-                  type={key === "tag" ? "text" : "number"}
-                  value={form[key] || ""}
-                  onChange={(e) => set(key, e.target.value)}
-                  min="0"
-                  className={`w-full bg-[#fdf9f5] border rounded-xl px-4 py-2.5 text-[13px] text-gray-800 outline-none transition-all ${
-                    errors[key]
-                      ? "border-red-400 focus:border-red-400 focus:ring-2 focus:ring-red-100"
-                      : "border-[#ede5da] focus:border-[#C9B194] focus:ring-2 focus:ring-[#C9B19425]"
-                  }`}
-                />
-                {errors[key] && (
-                  <p className="text-[10px] text-red-500 mt-1">{errors[key]}</p>
-                )}
-              </div>
-            ))}
+            <Field label="Price (₹)" required error={errors.price}>
+              <input
+                type="number"
+                min="0"
+                value={form.price}
+                onChange={(e) => set("price", e.target.value)}
+                placeholder="1299"
+                className={inputCls(errors.price)}
+              />
+            </Field>
+
+            <Field label="Stock quantity" required error={errors.stock}>
+              <input
+                type="number"
+                min="0"
+                value={form.stock}
+                onChange={(e) => set("stock", e.target.value)}
+                placeholder="50"
+                className={inputCls(errors.stock)}
+              />
+            </Field>
           </div>
 
-          {/* Live discount badge */}
-          {discount && (
-            <div className="mt-3 inline-flex items-center gap-2 bg-green-50 border border-green-200 rounded-full px-3 py-1.5">
-              <svg
-                width="11"
-                height="11"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#16a34a"
-                strokeWidth="2"
-              >
-                <path d="m20.59 13.41-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
-                <line x1="7" y1="7" x2="7.01" y2="7" />
-              </svg>
-              <span className="text-[11px] text-green-700 font-medium">
-                {discount}% off · customer saves ₹
-                {(Number(form.original) - Number(form.price)).toLocaleString()}
-              </span>
+          {/* Stock status pill */}
+          {form.stock !== "" && !isNaN(form.stock) && (
+            <div
+              className={`mt-2.5 inline-flex items-center gap-1.5 text-[11px] font-medium px-3 py-1 rounded-full border ${
+                Number(form.stock) === 0
+                  ? "bg-red-50 border-red-200 text-red-600"
+                  : Number(form.stock) <= 10
+                    ? "bg-yellow-50 border-yellow-200 text-yellow-700"
+                    : "bg-green-50 border-green-200 text-green-700"
+              }`}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-current" />
+              {Number(form.stock) === 0
+                ? "Out of stock"
+                : Number(form.stock) <= 10
+                  ? `Low stock — ${form.stock} units left`
+                  : `In stock — ${form.stock} units`}
             </div>
           )}
 
-          {/* Image upload */}
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mt-5 mb-3">
-            Product image
-          </p>
+          {/* ─ Product Image ─ */}
+          <SectionLabel>Product image</SectionLabel>
           <div className="flex items-start gap-4">
             <div
               className={`w-16 h-16 rounded-2xl overflow-hidden shrink-0 border-2 border-dashed flex items-center justify-center ${
@@ -369,12 +431,72 @@ export default function EditProductModal({ product, onSave, onClose }) {
                 <button
                   type="button"
                   onClick={() => setPreview(product.image)}
-                  className="text-[10px] text-red-400 hover:text-red-600 mt-1 transition-colors"
+                  className="text-[10px] text-red-400 hover:text-red-600 mt-1 transition-colors block"
                 >
                   Revert to original
                 </button>
               )}
             </div>
+          </div>
+
+          {/* ─ Flags / Toggles ─ */}
+          <SectionLabel>Product flags</SectionLabel>
+          <div className="bg-[#fdf9f5] border border-[#ede5da] rounded-2xl px-4 py-1">
+            <Toggle
+              label="Featured product"
+              desc="Show on homepage featured section"
+              value={form.featured}
+              onChange={(v) => set("featured", v)}
+            />
+            <Toggle
+              label="New arrival"
+              desc="Show in new arrivals section"
+              value={form.newArrival}
+              onChange={(v) => set("newArrival", v)}
+            />
+            <Toggle
+              label="Best deal"
+              desc="Show in best deals section with discount badge"
+              value={form.bestDeal}
+              onChange={(v) => set("bestDeal", v)}
+            />
+          </div>
+
+          {/* ─ Read-only meta ─ */}
+          <SectionLabel>Product metadata</SectionLabel>
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { label: "Rating", value: product.rating ?? 0 },
+              { label: "Reviews", value: product.numReviews ?? 0 },
+              {
+                label: "Product ID",
+                value: product._id
+                  ? `#${product._id.toString().slice(-6).toUpperCase()}`
+                  : "—",
+              },
+              {
+                label: "Created",
+                value: product.createdAt
+                  ? new Date(product.createdAt).toLocaleDateString("en-IN", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })
+                  : "—",
+              },
+            ].map(({ label, value }) => (
+              <div
+                key={label}
+                className="bg-[#fdf9f5] border border-[#f0e8df] rounded-xl p-3"
+              >
+                <p className="text-[9px] font-medium text-[#C9B194] uppercase tracking-widest mb-0.5">
+                  {label}
+                </p>
+                <p className="text-[13px] font-semibold text-gray-700">
+                  {String(value)}
+                </p>
+              </div>
+            ))}
           </div>
         </form>
 
@@ -389,11 +511,33 @@ export default function EditProductModal({ product, onSave, onClose }) {
           </button>
           <button
             onClick={handleSave}
-            className={`flex-1 py-2.5 rounded-xl text-[13px] font-medium text-white transition-all duration-200 ${
-              saved ? "bg-green-600" : "bg-[#1a1a1a] hover:bg-[#C9B194]"
+            disabled={saving || saved}
+            className={`flex-1 py-2.5 rounded-xl text-[13px] font-medium text-white transition-all duration-200 flex items-center justify-center gap-2 ${
+              saved
+                ? "bg-green-600"
+                : saving
+                  ? "bg-[#C9B194] cursor-wait"
+                  : "bg-[#1a1a1a] hover:bg-[#C9B194]"
             }`}
           >
-            {saved ? "✓ Saved!" : "Save changes"}
+            {saved && "✓ Saved!"}
+            {saving && !saved && (
+              <>
+                <svg
+                  className="animate-spin"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                </svg>
+                Saving…
+              </>
+            )}
+            {!saving && !saved && "Save changes"}
           </button>
         </div>
       </div>

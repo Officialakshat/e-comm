@@ -1,5 +1,6 @@
 // admin/StatCards.jsx
-import { statCards } from "../data/adminData";
+
+import { statCards } from "../data/AdminData";
 
 export default function StatCards() {
   return (
