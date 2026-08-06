@@ -77,14 +77,14 @@ export default function ProductsTable({ products, onEdit, onDelete }) {
                 <div className="flex justify-center gap-2">
                   <button
                     onClick={() => onEdit(product)}
-                    className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded transition"
+                    className="bg-[#C9B194] hover:bg-[#c4a278] cursor-pointer text-white px-3 py-1 rounded transition"
                   >
                     Edit
                   </button>
 
                   <button
-                    onClick={() => onDelete(product)}
-                    className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded transition"
+                    className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                    onClick={() => handleDelete(product._id)}
                   >
                     Delete
                   </button>

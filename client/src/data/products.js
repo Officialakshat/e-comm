@@ -6,7 +6,7 @@ const Products = [
     price: 1299,
     original: 1899,
     tag: "Best Seller",
-    tagColor: "bg-[#C9B194] text-white",
+
     rating: 4.5,
     reviews: 128,
     img: "https://www.ikea.com/in/en/images/products/blidvaeder-table-lamp-off-white-ceramic-beige__1059594_pe849715_s5.jpg?f=xl",

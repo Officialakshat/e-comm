@@ -5,13 +5,15 @@ const cloudinary = require("../config/cloudinary");
 
 exports.createProduct = async (req, res) => {
   try {
-    const { name, description, price, category, stock, image } = req.body;
+    const { name, description, price, category, stock, brand, image } =
+      req.body;
     const product = await Product.create({
       name,
       description,
       price,
       category,
       stock,
+      brand,
       image,
       user: req.user._id,
     });

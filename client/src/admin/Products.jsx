@@ -3,6 +3,7 @@ import { getProducts } from "../services/products";
 import { useNavigate } from "react-router-dom";
 import ProductsTable from "./components/ProductsTable";
 import EditProductModal from "./EditProducts";
+import { deleteProduct } from "../services/products";
 
 export default function Products() {
   const [products, setProducts] = useState([]);
@@ -26,6 +27,26 @@ export default function Products() {
       setError(err.response?.data?.message || "Failed to fetch products");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this product?",
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+      await deleteProduct(id);
+
+      // Refresh list
+      fetchProducts();
+
+      alert("Product deleted successfully.");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete product.");
     }
   };
 

@@ -114,6 +114,7 @@ function ConfirmModal({ product, onConfirm, onCancel }) {
 }
 
 // ── Main DeleteProduct page ───────────────────────────────
+
 export default function DeleteProduct() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);

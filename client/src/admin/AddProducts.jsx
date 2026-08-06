@@ -1,6 +1,6 @@
 // admin/AddProduct.jsx
 import { useState } from "react";
-import { createProduct } from "../services/products";
+import { createProduct, uploadImage } from "../services/products";
 
 const CATEGORIES = [
   "Lighting",
@@ -84,6 +84,7 @@ export default function AddProduct({ onAdd, onCancel }) {
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
 
   const set = (key, val) => {
     setForm((f) => ({ ...f, [key]: val }));
@@ -92,7 +93,11 @@ export default function AddProduct({ onAdd, onCancel }) {
 
   const handleImage = (e) => {
     const file = e.target.files[0];
-    if (file) setPreview(URL.createObjectURL(file));
+
+    if (!file) return;
+
+    setImageFile(file);
+    setPreview(URL.createObjectURL(file));
   };
 
   const validate = () => {
@@ -111,45 +116,62 @@ export default function AddProduct({ onAdd, onCancel }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validate()) return;
 
-    const newProduct = {
-      name: form.name.trim(),
-      description: form.description.trim(),
-      brand: form.brand.trim(),
-      category: form.category,
-      price: Number(form.price),
-      stock: Number(form.stock),
-      image: preview || "",
-      featured: form.featured,
-      newArrival: form.newArrival,
-      bestDeal: form.bestDeal,
-      rating: 0,
-      numReviews: 0,
-    };
+    if (!validate()) return;
 
     try {
       setSaving(true);
+
+      let imageUrl = "";
+
+      // Upload image to Cloudinary
+      if (imageFile) {
+        console.log("Selected File:", imageFile);
+        imageUrl = await uploadImage(imageFile);
+        console.log("Image URL:", imageUrl);
+      }
+
+      // Product object
+      const newProduct = {
+        name: form.name.trim(),
+        description: form.description.trim(),
+        brand: form.brand.trim(),
+        category: form.category,
+        price: Number(form.price),
+        stock: Number(form.stock),
+        image: imageUrl, // ✅ Save Cloudinary URL
+        featured: form.featured,
+        newArrival: form.newArrival,
+        bestDeal: form.bestDeal,
+        rating: 0,
+        numReviews: 0,
+      };
+
+      // Save product
       await createProduct(newProduct);
-      if (onAdd) onAdd(newProduct);
+
+      const createdProduct = await createProduct(newProduct);
+      if (onAdd) {
+        onAdd(createdProduct.product);
+      }
+
+      // Success message
       setSaved(true);
+
+      // Reset form after 2 seconds
       setTimeout(() => {
         setSaved(false);
         setForm(EMPTY);
         setPreview(null);
+        setImageFile(null);
       }, 2000);
     } catch (err) {
       console.error(err);
-      alert("Failed to add product. Please try again.");
+      alert("Failed to add product.");
     } finally {
       setSaving(false);
     }
   };
-
-  const discount =
-    form.price && form.original && Number(form.original) > Number(form.price)
-      ? Math.round((1 - Number(form.price) / Number(form.original)) * 100)
-      : null;
 
   return (
     <div className="min-h-screen bg-[#f8f6f3] p-5 sm:p-8">
@@ -331,7 +353,10 @@ export default function AddProduct({ onAdd, onCancel }) {
                 {preview && (
                   <button
                     type="button"
-                    onClick={() => setPreview(null)}
+                    onClick={() => {
+                      setPreview(null);
+                      setImageFile(null);
+                    }}
                     className="text-[11px] text-red-400 hover:text-red-600 mt-1 transition-colors block"
                   >
                     Remove image
