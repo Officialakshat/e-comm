@@ -1,29 +1,50 @@
 import api from "./api";
 
-export const getProducts = async () => {
-  const { data } = await api.get("/products");
+// =========================
+// GET PRODUCTS
+// =========================
+export const getProducts = async (params = {}) => {
+  const { data } = await api.get("/products", {
+    params,
+  });
+
   return data;
 };
 
-export const createProduct = async (product) => {
-  const { data } = await api.post("/products", product);
+// =========================
+// CREATE PRODUCT
+// =========================
+export const createProduct = async (productData) => {
+  const { data } = await api.post("/products", productData);
+
   return data;
 };
 
-export const updateProduct = async (id, product) => {
-  const { data } = await api.put(`/products/${id}`, product);
+// =========================
+// UPDATE PRODUCT
+// =========================
+export const updateProduct = async (id, productData) => {
+  const { data } = await api.put(`/products/${id}`, productData);
+
   return data;
 };
 
+// =========================
+// DELETE PRODUCT
+// =========================
 export const deleteProduct = async (id) => {
   const { data } = await api.delete(`/products/${id}`);
+
   return data;
 };
 
-export const uploadImage = async (file) => {
+// =========================
+// UPLOAD PRODUCT IMAGE
+// =========================
+export const uploadImage = async (imageFile) => {
   const formData = new FormData();
 
-  formData.append("image", file);
+  formData.append("image", imageFile);
 
   const { data } = await api.post("/products/upload", formData, {
     headers: {

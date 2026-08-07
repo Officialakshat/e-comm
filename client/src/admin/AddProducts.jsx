@@ -1,6 +1,7 @@
 // admin/AddProduct.jsx
 import { useState } from "react";
 import { createProduct, uploadImage } from "../services/products";
+import { useNavigate } from "react-router-dom";
 
 const CATEGORIES = [
   "Lighting",
@@ -91,6 +92,8 @@ export default function AddProduct({ onAdd, onCancel }) {
     setErrors((e) => ({ ...e, [key]: "" }));
   };
 
+  const navigate = useNavigate();
+
   const handleImage = (e) => {
     const file = e.target.files[0];
 
@@ -124,14 +127,16 @@ export default function AddProduct({ onAdd, onCancel }) {
 
       let imageUrl = "";
 
-      // Upload image to Cloudinary
+      // Upload image
       if (imageFile) {
         console.log("Selected File:", imageFile);
+
         imageUrl = await uploadImage(imageFile);
+
         console.log("Image URL:", imageUrl);
       }
 
-      // Product object
+      // Create product object
       const newProduct = {
         name: form.name.trim(),
         description: form.description.trim(),
@@ -139,7 +144,7 @@ export default function AddProduct({ onAdd, onCancel }) {
         category: form.category,
         price: Number(form.price),
         stock: Number(form.stock),
-        image: imageUrl, // ✅ Save Cloudinary URL
+        image: imageUrl,
         featured: form.featured,
         newArrival: form.newArrival,
         bestDeal: form.bestDeal,
@@ -147,27 +152,30 @@ export default function AddProduct({ onAdd, onCancel }) {
         numReviews: 0,
       };
 
-      // Save product
+      // Save product to MongoDB
       await createProduct(newProduct);
 
-      const createdProduct = await createProduct(newProduct);
+      console.log("Product created successfully");
+
+      // Refresh parent list if needed
       if (onAdd) {
-        onAdd(createdProduct.product);
+        await onAdd();
       }
 
-      // Success message
+      // Show success
       setSaved(true);
 
-      // Reset form after 2 seconds
+      // Go back to Products page
       setTimeout(() => {
-        setSaved(false);
-        setForm(EMPTY);
-        setPreview(null);
-        setImageFile(null);
-      }, 2000);
+        navigate("/admin/products");
+      }, 800);
     } catch (err) {
-      console.error(err);
-      alert("Failed to add product.");
+      console.error("Failed to add product:", err);
+
+      alert(
+        err.response?.data?.message ||
+          "Failed to add product. Please try again.",
+      );
     } finally {
       setSaving(false);
     }

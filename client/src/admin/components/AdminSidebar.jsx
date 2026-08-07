@@ -3,24 +3,31 @@
 import { NavLink } from "react-router-dom";
 import { sidebarGroups } from "../../data/AdminData";
 
-export default function AdminSidebar({ collapsed, setCollapsed }) {
+export default function AdminSidebar({
+  collapsed,
+  setCollapsed,
+  sidebarOpen,
+  setSidebarOpen,
+}) {
   return (
     <aside
       className={`
-        fixed lg:static
-        top-0 left-0
-        h-full
-        bg-[#1a1a1a]
-        flex flex-col
-        shrink-0
-        z-50
-        transition-all duration-300
-        ${
-          collapsed
-            ? "w-16 -translate-x-full lg:translate-x-0"
-            : "w-64 translate-x-0"
-        }
-      `}
+fixed
+lg:static
+top-0
+left-0
+h-full
+bg-[#1a1a1a]
+flex
+flex-col
+z-50
+transition-all
+duration-300
+
+${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+
+${collapsed ? "w-16" : "w-64"}
+`}
     >
       {/* Logo */}
       <div className="flex items-center gap-3 px-4 py-4 border-b border-white/10">
@@ -42,9 +49,10 @@ export default function AdminSidebar({ collapsed, setCollapsed }) {
           </span>
         )}
 
+        {/* Desktop Collapse Button */}
         <button
           onClick={() => setCollapsed((prev) => !prev)}
-          className="ml-auto text-gray-500 hover:text-white transition-colors"
+          className="hidden lg:flex ml-auto text-gray-500 hover:text-white transition-colors"
         >
           <svg
             width="16"
@@ -59,6 +67,23 @@ export default function AdminSidebar({ collapsed, setCollapsed }) {
             ) : (
               <path d="M15 18l-6-6 6-6" />
             )}
+          </svg>
+        </button>
+
+        {/* Mobile Close Button */}
+        <button
+          onClick={() => setSidebarOpen(false)}
+          className="lg:hidden ml-auto text-gray-400 hover:text-white"
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path d="M18 6L6 18M6 6l12 12" />
           </svg>
         </button>
       </div>
