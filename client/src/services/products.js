@@ -1,8 +1,6 @@
 import api from "./api";
 
-// =========================
 // GET PRODUCTS
-// =========================
 export const getProducts = async (params = {}) => {
   const { data } = await api.get("/products", {
     params,
@@ -11,9 +9,8 @@ export const getProducts = async (params = {}) => {
   return data;
 };
 
-// =========================
 // CREATE PRODUCT
-// =========================
+
 export const createProduct = async (productData) => {
   const { data } = await api.post("/products", productData);
 

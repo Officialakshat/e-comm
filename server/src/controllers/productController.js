@@ -32,13 +32,16 @@ exports.createProduct = async (req, res) => {
 
 // get all product
 
+// GET ALL PRODUCTS
 exports.getProducts = async (req, res) => {
   try {
     const pageSize = 5;
 
     const page = Number(req.query.page) || 1;
 
+    // =========================
     // SEARCH
+    // =========================
     const keyword = req.query.keyword
       ? {
           name: {
@@ -48,44 +51,148 @@ exports.getProducts = async (req, res) => {
         }
       : {};
 
+    // =========================
     // CATEGORY FILTER
-    const category = req.query.category ? { category: req.query.category } : {};
+    // =========================
+    const category = req.query.category
+      ? {
+          category: req.query.category,
+        }
+      : {};
 
+    // =========================
     // PRICE FILTER
+    // =========================
     const minPrice = req.query.minPrice ? Number(req.query.minPrice) : 0;
 
-    const maxPrice = req.query.maxPrice ? Number(req.query.maxPrice) : 999999;
+    const maxPrice = req.query.maxPrice
+      ? Number(req.query.maxPrice)
+      : 999999999;
 
+    const price = {
+      $gte: minPrice,
+      $lte: maxPrice,
+    };
+
+    // STOCK STATUS FILTER
+    let stockFilter = {};
+
+    if (req.query.stockStatus === "out") {
+      stockFilter = { stock: 0 };
+    }
+
+    if (req.query.stockStatus === "low") {
+      stockFilter = {
+        stock: {
+          $gt: 0,
+          $lte: 10,
+        },
+      };
+    }
+
+    if (req.query.stockStatus === "in") {
+      stockFilter = {
+        stock: {
+          $gt: 10,
+        },
+      };
+    }
+
+    // =========================
+    // FEATURED FILTER
+    // =========================
+    const featured = req.query.featured === "true" ? { featured: true } : {};
+
+    // =========================
+    // NEW ARRIVAL FILTER
+    // =========================
+    const newArrival =
+      req.query.newArrival === "true" ? { newArrival: true } : {};
+
+    // =========================
+    // BEST DEAL FILTER
+    // =========================
+    const bestDeal = req.query.bestDeal === "true" ? { bestDeal: true } : {};
+
+    // =========================
+    // STOCK FILTER
+    // =========================
+    let stock = {};
+
+    if (req.query.stock === "inStock") {
+      stock = {
+        stock: {
+          $gt: 0,
+        },
+      };
+    }
+
+    if (req.query.stock === "outOfStock") {
+      stock = {
+        stock: {
+          $eq: 0,
+        },
+      };
+    }
+
+    if (req.query.stock === "lowStock") {
+      stock = {
+        stock: {
+          $gt: 0,
+          $lte: 10,
+        },
+      };
+    }
+
+    // =========================
     // SORTING
-    let sortOption = { createdAt: -1 };
+    // =========================
+    let sortOption = {
+      createdAt: -1,
+    };
 
     if (req.query.sort === "low") {
-      sortOption = { price: 1 };
+      sortOption = {
+        price: 1,
+      };
     }
 
     if (req.query.sort === "high") {
-      sortOption = { price: -1 };
+      sortOption = {
+        price: -1,
+      };
     }
 
+    // =========================
     // FINAL QUERY
+    // =========================
     const query = {
       ...keyword,
       ...category,
-      price: {
-        $gte: minPrice,
-        $lte: maxPrice,
-      },
+      ...stockFilter,
+      price,
+      ...featured,
+      ...newArrival,
+      ...bestDeal,
+      ...stock,
     };
 
-    // COUNT PRODUCTS
+    // =========================
+    // COUNT
+    // =========================
     const count = await Product.countDocuments(query);
 
+    // =========================
     // GET PRODUCTS
+    // =========================
     const products = await Product.find(query)
       .limit(pageSize)
       .skip(pageSize * (page - 1))
       .sort(sortOption);
 
+    // =========================
+    // RESPONSE
+    // =========================
     res.json({
       success: true,
       page,

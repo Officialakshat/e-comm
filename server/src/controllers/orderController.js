@@ -61,7 +61,6 @@ exports.getMyOrders = async (req, res) => {
   }
 };
 
-// GET SINGLE ORDER
 exports.getOrderById = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id).populate(
@@ -73,6 +72,17 @@ exports.getOrderById = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: "Order not found",
+      });
+    }
+
+    // Allow admin to view any order
+    if (
+      req.user.role !== "admin" &&
+      order.user._id.toString() !== req.user._id.toString()
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: "Not authorized to view this order",
       });
     }
 
@@ -109,6 +119,27 @@ exports.getOrders = async (req, res) => {
 // ADMIN — UPDATE ORDER STATUS
 exports.updateOrderStatus = async (req, res) => {
   try {
+    const { status } = req.body;
+
+    const allowedStatuses = [
+      "Processing",
+      "Confirmed",
+      "Shipped",
+      "Out for Delivery",
+      "Delivered",
+      "Cancelled",
+      "Return Requested",
+      "Returned",
+    ];
+
+    // Validate status
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid order status",
+      });
+    }
+
     const order = await Order.findById(req.params.id);
 
     if (!order) {
@@ -118,22 +149,28 @@ exports.updateOrderStatus = async (req, res) => {
       });
     }
 
-    order.orderStatus = req.body.status;
+    // Update status
+    order.orderStatus = status;
 
-    // DELIVERED
-    if (req.body.status === "Delivered") {
+    // Delivered
+    if (status === "Delivered") {
       order.isDelivered = true;
-      order.deliveredAt = Date.now();
+      order.deliveredAt = new Date();
+    } else {
+      order.isDelivered = false;
+      order.deliveredAt = undefined;
     }
 
     await order.save();
 
-    res.json({
+    res.status(200).json({
       success: true,
-      message: "Order updated",
+      message: "Order status updated successfully",
       order,
     });
   } catch (error) {
+    console.error("Update Order Status Error:", error);
+
     res.status(500).json({
       success: false,
       message: error.message,
