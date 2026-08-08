@@ -19,13 +19,14 @@ import MyOrders from "./pages/MyOrder";
 import AdminLayout from "./layout/AdminLayout";
 import Dashboard from "./admin/Dashboard";
 import Products from "./admin/Products";
-import AdminOrdersPanel from "./admin/OrdersBarChart";
+// import AdminOrdersPanel from "./admin/OrdersBarChart";
 import Users from "./admin/Users";
 import TopProducts from "./admin/TopProducts";
 import AdminCategory from "./admin/AdminCategory";
 import AddProduct from "./admin/AddProducts";
 import EditProducts from "./admin/EditProducts";
 import DeleteProduct from "./admin/DeleteProducts";
+import Order from "./admin/Order";
 
 function App() {
   return (
@@ -56,7 +57,7 @@ function App() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Dashboard />} />
           <Route path="products" element={<Products />} />
-          <Route path="orders" element={<AdminOrdersPanel />} />
+          <Route path="orders" element={<Order />} />
           <Route path="users" element={<Users />} />
           <Route path="products/editProduct/:id" element={<EditProducts />} />
           <Route path="deleteProduct" element={<DeleteProduct />} />

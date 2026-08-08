@@ -4,8 +4,8 @@ import StatCards from "../admin/StatCards";
 import SalesChart from "../admin/SalesChart";
 import TopProducts from "../admin/TopProducts";
 import RecentOrders from "../admin/RecentOrders";
-import OrdersBarChart from "../admin/OrdersBarChart";
 import Products from "../admin/products";
+import Order from "./Order";
 
 export default function Dashboard() {
   return (
@@ -55,7 +55,7 @@ export default function Dashboard() {
           <div className="lg:col-span-2">
             <RecentOrders />
           </div>
-          <OrdersBarChart />
+          <Order />
         </div>
       </main>
     </div>
