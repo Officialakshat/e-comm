@@ -1,15 +1,13 @@
-require("dotenv").config();
+import "dotenv/config";
 
-require("./config/cloudinary");
-
-const app = require("./app");
-
-const connectDB = require("./config/db");
+import "./config/cloudinary.js";
+import { listen } from "./app.js";
+import connectDB from "./config/db.js";
 
 connectDB();
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

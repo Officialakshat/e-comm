@@ -1,16 +1,16 @@
-const express = require("express");
+import { Router } from "express";
 
-const router = express.Router();
+const router = Router();
 
-const {
+import {
   createOrder,
   getMyOrders,
   getOrderById,
   getOrders,
   updateOrderStatus,
-} = require("../controllers/orderController");
+} from "../controllers/orderController.js";
 
-const { protect, admin } = require("../middleware/authMiddleware");
+import { protect, admin } from "../middleware/authMiddleware.js";
 
 // CREATE ORDER
 router.post("/", protect, createOrder);
@@ -27,4 +27,4 @@ router.get("/", protect, admin, getOrders);
 // ADMIN UPDATE STATUS
 router.put("/:id", protect, admin, updateOrderStatus);
 
-module.exports = router;
+export default router;

@@ -1,7 +1,7 @@
-const Order = require("../models/Order");
+import { create, find, findById } from "../models/Order.js";
 
 // CREATE ORDER
-exports.createOrder = async (req, res) => {
+export async function createOrder(req, res) {
   try {
     const {
       orderItems,
@@ -19,7 +19,7 @@ exports.createOrder = async (req, res) => {
       });
     }
 
-    const order = await Order.create({
+    const order = await create({
       user: req.user._id,
       orderItems,
       shippingAddress,
@@ -39,12 +39,12 @@ exports.createOrder = async (req, res) => {
       message: error.message,
     });
   }
-};
+}
 
 // GET LOGGED-IN USER ORDERS
-exports.getMyOrders = async (req, res) => {
+export async function getMyOrders(req, res) {
   try {
-    const orders = await Order.find({
+    const orders = await find({
       user: req.user._id,
     });
 
@@ -59,14 +59,11 @@ exports.getMyOrders = async (req, res) => {
       message: error.message,
     });
   }
-};
+}
 
-exports.getOrderById = async (req, res) => {
+export async function getOrderById(req, res) {
   try {
-    const order = await Order.findById(req.params.id).populate(
-      "user",
-      "name email",
-    );
+    const order = await findById(req.params.id).populate("user", "name email");
 
     if (!order) {
       return res.status(404).json({
@@ -96,12 +93,12 @@ exports.getOrderById = async (req, res) => {
       message: error.message,
     });
   }
-};
+}
 
 // ADMIN — GET ALL ORDERS
-exports.getOrders = async (req, res) => {
+export async function getOrders(req, res) {
   try {
-    const orders = await Order.find().populate("user", "name email");
+    const orders = await find().populate("user", "name email");
 
     res.json({
       success: true,
@@ -114,10 +111,10 @@ exports.getOrders = async (req, res) => {
       message: error.message,
     });
   }
-};
+}
 
 // ADMIN — UPDATE ORDER STATUS
-exports.updateOrderStatus = async (req, res) => {
+export async function updateOrderStatus(req, res) {
   try {
     const { status } = req.body;
 
@@ -140,7 +137,7 @@ exports.updateOrderStatus = async (req, res) => {
       });
     }
 
-    const order = await Order.findById(req.params.id);
+    const order = await findById(req.params.id);
 
     if (!order) {
       return res.status(404).json({
@@ -176,4 +173,4 @@ exports.updateOrderStatus = async (req, res) => {
       message: error.message,
     });
   }
-};
+}

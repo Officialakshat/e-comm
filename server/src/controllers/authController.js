@@ -1,13 +1,13 @@
-const User = require("../models/User");
-const generateToken = require("../utils/generateToken");
+import { findOne, create, findById } from "../models/User.js";
+import generateToken from "../utils/generateToken.js";
 
 // Register User
-exports.registerUser = async (req, res) => {
+export async function registerUser(req, res) {
   try {
     const { name, email, password } = req.body;
 
     // check existing user
-    const userExists = await User.findOne({ email });
+    const userExists = await findOne({ email });
 
     if (userExists) {
       return res.status(400).json({
@@ -17,7 +17,7 @@ exports.registerUser = async (req, res) => {
     }
 
     // create User
-    const user = await User.create({
+    const user = await create({
       name,
       email,
       password,
@@ -38,16 +38,16 @@ exports.registerUser = async (req, res) => {
       message: error.message,
     });
   }
-};
+}
 
 // Login User
 
-exports.loginUser = async (req, res) => {
+export async function loginUser(req, res) {
   try {
     const { email, password } = req.body;
 
     //find User
-    const user = await User.findOne({ email });
+    const user = await findOne({ email });
 
     // check user & password
 
@@ -75,13 +75,13 @@ exports.loginUser = async (req, res) => {
       message: error.message,
     });
   }
-};
+}
 
 // get user profile
 
-exports.getUserPofile = async (req, res) => {
+export async function getUserPofile(req, res) {
   try {
-    const user = await User.findById(req.user._id);
+    const user = await findById(req.user._id);
 
     if (user) {
       res.json({
@@ -105,4 +105,4 @@ exports.getUserPofile = async (req, res) => {
       message: error.message,
     });
   }
-};
+}

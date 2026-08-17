@@ -1,15 +1,15 @@
-const mongoose = require("mongoose");
+import { Schema, model } from "mongoose";
 
-const cartSchema = new mongoose.Schema(
+const cartSchema = new Schema(
   {
     user: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
 
     product: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "Product",
       required: true,
     },
@@ -25,4 +25,4 @@ const cartSchema = new mongoose.Schema(
   },
 );
 
-module.exports = mongoose.model("Cart", cartSchema);
+export default model("Cart", cartSchema);

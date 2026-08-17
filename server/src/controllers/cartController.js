@@ -1,7 +1,7 @@
-const Cart = require("../models/Cart");
+import Cart from "../models/Cart.js";
 
 // ADD TO CART
-exports.addToCart = async (req, res) => {
+export async function addToCart(req, res) {
   try {
     const { productId, quantity } = req.body;
 
@@ -42,10 +42,10 @@ exports.addToCart = async (req, res) => {
       message: error.message,
     });
   }
-};
+}
 
 // GET USER CART
-exports.getCart = async (req, res) => {
+export async function getCart(req, res) {
   try {
     const cartItems = await Cart.find({
       user: req.user._id,
@@ -62,10 +62,10 @@ exports.getCart = async (req, res) => {
       message: error.message,
     });
   }
-};
+}
 
 // UPDATE CART QUANTITY
-exports.updateCartItem = async (req, res) => {
+export async function updateCartItem(req, res) {
   try {
     const { quantity } = req.body;
 
@@ -93,10 +93,10 @@ exports.updateCartItem = async (req, res) => {
       message: error.message,
     });
   }
-};
+}
 
 // REMOVE CART ITEM
-exports.removeCartItem = async (req, res) => {
+export async function removeCartItem(req, res) {
   try {
     const cartItem = await Cart.findById(req.params.id);
 
@@ -119,4 +119,4 @@ exports.removeCartItem = async (req, res) => {
       message: error.message,
     });
   }
-};
+}

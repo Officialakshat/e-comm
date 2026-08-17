@@ -1,14 +1,14 @@
-const express = require("express");
+import { Router } from "express";
 
-const router = express.Router();
+const router = Router();
 
-const User = require("../models/User");
+import { create } from "../models/User.js";
 
 router.post("/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    const user = await User.create({
+    const user = await create({
       name,
       email,
       password,
@@ -26,4 +26,4 @@ router.post("/register", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

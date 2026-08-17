@@ -9,8 +9,6 @@ export default function Order() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  // Selected order for editing status
   const [editingOrder, setEditingOrder] = useState(null);
 
   // Fetch all orders
