@@ -1,5 +1,3 @@
-// admin/components/OrdersTable.jsx
-
 function formatDate(iso) {
   if (!iso) return "-";
 
@@ -76,7 +74,8 @@ export default function OrdersTable({ orders, onView, onStatusEdit }) {
               const customerName = order.user?.name || "Unknown User";
               const customerEmail = order.user?.email || "-";
 
-              const customerInitial = customerName.charAt(0).toUpperCase();
+              const customerInitial =
+                order.user?.name?.charAt(0).toUpperCase() || "U";
 
               return (
                 <tr
@@ -102,7 +101,7 @@ export default function OrdersTable({ orders, onView, onStatusEdit }) {
                           {customerName}
                         </p>
 
-                        <p className="text-[10px] text-gray-400 truncate max-w-[140px]">
+                        <p className="text-[10px] text-gray-400 truncate max-w-35">
                           {customerEmail}
                         </p>
                       </div>

@@ -3,11 +3,15 @@
 import { useEffect, useState } from "react";
 import OrdersTable from "./components/OrdersTable";
 import { getAllOrders } from "../services/orders";
+import EditOrderStatusModal from "./components/EditOrderStatusModal";
 
 export default function Order() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  // Selected order for editing status
+  const [editingOrder, setEditingOrder] = useState(null);
 
   // Fetch all orders
   const fetchOrders = async () => {
@@ -41,10 +45,7 @@ export default function Order() {
 
   // Edit order status
   const handleStatusEdit = (order) => {
-    console.log("Edit Status:", order);
-
-    // We'll implement the status modal next
-    alert(`Current status: ${order.orderStatus}`);
+    setEditingOrder(order);
   };
 
   // Loading
@@ -87,7 +88,8 @@ export default function Order() {
         </div>
 
         <div className="text-sm text-gray-500">
-          {orders.length} order{orders.length !== 1 ? "s" : ""}
+          {orders.length} order
+          {orders.length !== 1 ? "s" : ""}
         </div>
       </div>
 
@@ -97,6 +99,15 @@ export default function Order() {
         onView={handleViewOrder}
         onStatusEdit={handleStatusEdit}
       />
+
+      {/* Edit Order Status Modal */}
+      {editingOrder && (
+        <EditOrderStatusModal
+          order={editingOrder}
+          onClose={() => setEditingOrder(null)}
+          onSave={fetchOrders}
+        />
+      )}
     </div>
   );
 }

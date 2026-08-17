@@ -101,7 +101,7 @@ exports.getOrderById = async (req, res) => {
 // ADMIN — GET ALL ORDERS
 exports.getOrders = async (req, res) => {
   try {
-    const orders = await Order.find().populate("user", "id name");
+    const orders = await Order.find().populate("user", "name email");
 
     res.json({
       success: true,
