@@ -1,5 +1,5 @@
-import { findOne, create, findById } from "../models/User.js";
 import generateToken from "../utils/generateToken.js";
+import User from "../models/User.js";
 
 // Register User
 export async function registerUser(req, res) {
@@ -7,7 +7,7 @@ export async function registerUser(req, res) {
     const { name, email, password } = req.body;
 
     // check existing user
-    const userExists = await findOne({ email });
+    const userExists = await User.findOne({ email });
 
     if (userExists) {
       return res.status(400).json({
@@ -17,7 +17,7 @@ export async function registerUser(req, res) {
     }
 
     // create User
-    const user = await create({
+    const user = await User.create({
       name,
       email,
       password,
@@ -47,7 +47,7 @@ export async function loginUser(req, res) {
     const { email, password } = req.body;
 
     //find User
-    const user = await findOne({ email });
+    const user = await User.findOne({ email });
 
     // check user & password
 
@@ -62,7 +62,6 @@ export async function loginUser(req, res) {
           token: generateToken(user._id),
         },
       });
-      s;
     } else {
       res.status(401).json({
         success: false,
@@ -79,9 +78,9 @@ export async function loginUser(req, res) {
 
 // get user profile
 
-export async function getUserPofile(req, res) {
+export async function getUserProfile(req, res) {
   try {
-    const user = await findById(req.user._id);
+    const user = await User.findById(req.user._id);
 
     if (user) {
       res.json({

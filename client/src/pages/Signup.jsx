@@ -58,7 +58,7 @@ export default function SignUp() {
         confirmPassword,
       });
 
-      localStorage.setItem("token", data.token);
+      localStorage.setItem("token", data.user.token);
       setUser(data.user);
 
       alert("Registration Successful");

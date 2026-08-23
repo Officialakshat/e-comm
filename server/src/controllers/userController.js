@@ -1,10 +1,9 @@
-import { find } from "../models/User.js";
-import Order from "../models/Order.js";
+import User from "../models/User.js";
 
 // ADMIN — GET ALL CUSTOMERS
 export async function getUsers(req, res) {
   try {
-    const users = await find({ role: "user" })
+    const users = await User.find({ role: "user" })
       .select("-password")
       .sort({ createdAt: -1 });
 

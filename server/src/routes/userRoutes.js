@@ -1,29 +1,11 @@
 import { Router } from "express";
 
+import { getUsers } from "../controllers/userController.js";
+import { protect, admin } from "../middleware/authMiddleware.js";
+
 const router = Router();
 
-import { create } from "../models/User.js";
-
-router.post("/register", async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
-
-    const user = await create({
-      name,
-      email,
-      password,
-    });
-
-    res.status(201).json({
-      success: true,
-      user,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-});
+// ADMIN — GET ALL CUSTOMERS
+router.get("/", protect, admin, getUsers);
 
 export default router;

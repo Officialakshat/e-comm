@@ -1,5 +1,3 @@
-import { create, find, findById } from "../models/Order.js";
-
 // CREATE ORDER
 export async function createOrder(req, res) {
   try {

@@ -5,7 +5,7 @@ const router = Router();
 import {
   registerUser,
   loginUser,
-  getUserPofile,
+  getUserProfile,
 } from "../controllers/authController.js";
 
 router.post("/register", registerUser);
@@ -15,7 +15,7 @@ router.post("/login", loginUser);
 // protected routes
 import { protect } from "../middleware/authMiddleware.js";
 
-router.get("/profile", protect, getUserPofile);
+router.get("/profile", protect, getUserProfile);
 export default router;
 
 // admin route

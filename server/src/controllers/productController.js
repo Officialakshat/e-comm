@@ -1,9 +1,9 @@
-const Product = require("../models/product").default;
-const cloudinary = require("../config/cloudinary").default;
+import Product from "../models/product.js";
+import cloudinary from "../config/cloudinary.js";
 
 // Create product
 
-exports.createProduct = async (req, res) => {
+export async function createProduct(req, res) {
   try {
     const { name, description, price, category, stock, brand, image } =
       req.body;
@@ -28,12 +28,12 @@ exports.createProduct = async (req, res) => {
       message: error.message,
     });
   }
-};
+}
 
 // get all product
 
 // GET ALL PRODUCTS
-exports.getProducts = async (req, res) => {
+export async function getProducts(req, res) {
   try {
     const pageSize = 5;
 
@@ -206,10 +206,10 @@ exports.getProducts = async (req, res) => {
       message: error.message,
     });
   }
-};
+}
 
 // Get single product
-exports.getSingleProduct = async (req, res) => {
+export async function getSingleProduct(req, res) {
   try {
     const product = await Product.findById(req.params.id);
 
@@ -229,10 +229,10 @@ exports.getSingleProduct = async (req, res) => {
       message: error.message,
     });
   }
-};
+}
 
 // UPDATE PRODUCT
-exports.updateProduct = async (req, res) => {
+export async function updateProduct(req, res) {
   try {
     let product = await Product.findById(req.params.id);
 
@@ -258,10 +258,10 @@ exports.updateProduct = async (req, res) => {
       message: error.message,
     });
   }
-};
+}
 
 // DELETE PRODUCT
-exports.deleteProduct = async (req, res) => {
+export async function deleteProduct(req, res) {
   try {
     const product = await Product.findById(req.params.id);
 
@@ -284,9 +284,9 @@ exports.deleteProduct = async (req, res) => {
       message: error.message,
     });
   }
-};
+}
 
-exports.uploadProductImage = async (req, res) => {
+export async function uploadProductImage(req, res) {
   try {
     // CHECK FILE
     if (!req.file) {
@@ -311,4 +311,4 @@ exports.uploadProductImage = async (req, res) => {
       message: error.message,
     });
   }
-};
+}

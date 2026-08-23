@@ -1,18 +1,17 @@
-const express = require("express");
-
+import express from "express";
+import upload from "../middleware/uploadMiddleware.js";
 const router = express.Router();
-const upload = require("../middleware/uploadMiddleware").default;
 
-const {
+import {
   createProduct,
   getProducts,
   getSingleProduct,
   updateProduct,
   deleteProduct,
   uploadProductImage,
-} = require("../controllers/productController");
+} from "../controllers/productController.js";
 
-const { protect, admin } = require("../middleware/authMiddleware");
+import { protect, admin } from "../middleware/authMiddleware.js";
 
 // public routes
 
@@ -36,4 +35,4 @@ router.post(
   uploadProductImage,
 );
 
-module.exports = router;
+export default router;

@@ -40,16 +40,15 @@ const userSchema = new Schema(
 );
 
 // Hash password before saving
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async function () {
   if (!this.isModified("password")) {
-    return next();
+    return;
   }
 
   this.password = await hash(this.password, 10);
-  next();
 });
 
-// Compare entered password with hashed password
+// Compare password
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await compare(enteredPassword, this.password);
 };
