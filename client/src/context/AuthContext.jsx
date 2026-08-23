@@ -16,7 +16,6 @@ export const AuthProvider = ({ children }) => {
       console.log("Profile Error:", error.response?.status);
       console.log("Profile Error Data:", error.response?.data);
 
-      localStorage.removeItem("token");
       setUser(null);
     } finally {
       setLoading(false);
