@@ -1,4 +1,5 @@
-// CREATE ORDER
+import Order from "../models/Order.js";
+
 export async function createOrder(req, res) {
   try {
     const {
@@ -17,7 +18,7 @@ export async function createOrder(req, res) {
       });
     }
 
-    const order = await create({
+    const order = await Order.create({
       user: req.user._id,
       orderItems,
       shippingAddress,
@@ -42,7 +43,7 @@ export async function createOrder(req, res) {
 // GET LOGGED-IN USER ORDERS
 export async function getMyOrders(req, res) {
   try {
-    const orders = await find({
+    const orders = await Order.find({
       user: req.user._id,
     });
 
@@ -61,7 +62,10 @@ export async function getMyOrders(req, res) {
 
 export async function getOrderById(req, res) {
   try {
-    const order = await findById(req.params.id).populate("user", "name email");
+    const order = await Order.findById(req.params.id).populate(
+      "user",
+      "name email",
+    );
 
     if (!order) {
       return res.status(404).json({
@@ -96,7 +100,7 @@ export async function getOrderById(req, res) {
 // ADMIN — GET ALL ORDERS
 export async function getOrders(req, res) {
   try {
-    const orders = await find().populate("user", "name email");
+    const orders = await Order.find().populate("user", "name email");
 
     res.json({
       success: true,
@@ -135,7 +139,7 @@ export async function updateOrderStatus(req, res) {
       });
     }
 
-    const order = await findById(req.params.id);
+    const order = await Order.findById(req.params.id);
 
     if (!order) {
       return res.status(404).json({
