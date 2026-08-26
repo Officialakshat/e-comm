@@ -1,12 +1,14 @@
 import Product from "../models/product.js";
 import cloudinary from "../config/cloudinary.js";
 
-// Create product
-
+// ======================================================
+// CREATE PRODUCT
+// ======================================================
 export async function createProduct(req, res) {
   try {
     const { name, description, price, category, stock, brand, image } =
       req.body;
+
     const product = await Product.create({
       name,
       description,
@@ -23,6 +25,8 @@ export async function createProduct(req, res) {
       product,
     });
   } catch (error) {
+    console.error("Create Product Error:", error);
+
     res.status(500).json({
       success: false,
       message: error.message,
@@ -30,18 +34,18 @@ export async function createProduct(req, res) {
   }
 }
 
-// get all product
-
+// ======================================================
 // GET ALL PRODUCTS
+// ======================================================
 export async function getProducts(req, res) {
   try {
     const pageSize = 5;
 
     const page = Number(req.query.page) || 1;
 
-    // =========================
+    // ==================================================
     // SEARCH
-    // =========================
+    // ==================================================
     const keyword = req.query.keyword
       ? {
           name: {
@@ -51,18 +55,18 @@ export async function getProducts(req, res) {
         }
       : {};
 
-    // =========================
+    // ==================================================
     // CATEGORY FILTER
-    // =========================
+    // ==================================================
     const category = req.query.category
       ? {
           category: req.query.category,
         }
       : {};
 
-    // =========================
+    // ==================================================
     // PRICE FILTER
-    // =========================
+    // ==================================================
     const minPrice = req.query.minPrice ? Number(req.query.minPrice) : 0;
 
     const maxPrice = req.query.maxPrice
@@ -74,11 +78,15 @@ export async function getProducts(req, res) {
       $lte: maxPrice,
     };
 
+    // ==================================================
     // STOCK STATUS FILTER
+    // ==================================================
     let stockFilter = {};
 
     if (req.query.stockStatus === "out") {
-      stockFilter = { stock: 0 };
+      stockFilter = {
+        stock: 0,
+      };
     }
 
     if (req.query.stockStatus === "low") {
@@ -98,25 +106,25 @@ export async function getProducts(req, res) {
       };
     }
 
-    // =========================
+    // ==================================================
     // FEATURED FILTER
-    // =========================
+    // ==================================================
     const featured = req.query.featured === "true" ? { featured: true } : {};
 
-    // =========================
+    // ==================================================
     // NEW ARRIVAL FILTER
-    // =========================
+    // ==================================================
     const newArrival =
       req.query.newArrival === "true" ? { newArrival: true } : {};
 
-    // =========================
+    // ==================================================
     // BEST DEAL FILTER
-    // =========================
+    // ==================================================
     const bestDeal = req.query.bestDeal === "true" ? { bestDeal: true } : {};
 
-    // =========================
+    // ==================================================
     // STOCK FILTER
-    // =========================
+    // ==================================================
     let stock = {};
 
     if (req.query.stock === "inStock") {
@@ -144,9 +152,9 @@ export async function getProducts(req, res) {
       };
     }
 
-    // =========================
+    // ==================================================
     // SORTING
-    // =========================
+    // ==================================================
     let sortOption = {
       createdAt: -1,
     };
@@ -163,9 +171,9 @@ export async function getProducts(req, res) {
       };
     }
 
-    // =========================
+    // ==================================================
     // FINAL QUERY
-    // =========================
+    // ==================================================
     const query = {
       ...keyword,
       ...category,
@@ -177,22 +185,22 @@ export async function getProducts(req, res) {
       ...stock,
     };
 
-    // =========================
+    // ==================================================
     // COUNT
-    // =========================
+    // ==================================================
     const count = await Product.countDocuments(query);
 
-    // =========================
+    // ==================================================
     // GET PRODUCTS
-    // =========================
+    // ==================================================
     const products = await Product.find(query)
       .limit(pageSize)
       .skip(pageSize * (page - 1))
       .sort(sortOption);
 
-    // =========================
+    // ==================================================
     // RESPONSE
-    // =========================
+    // ==================================================
     res.json({
       success: true,
       page,
@@ -201,6 +209,8 @@ export async function getProducts(req, res) {
       products,
     });
   } catch (error) {
+    console.error("Get Products Error:", error);
+
     res.status(500).json({
       success: false,
       message: error.message,
@@ -208,7 +218,9 @@ export async function getProducts(req, res) {
   }
 }
 
-// Get single product
+// ======================================================
+// GET SINGLE PRODUCT
+// ======================================================
 export async function getSingleProduct(req, res) {
   try {
     const product = await Product.findById(req.params.id);
@@ -219,11 +231,14 @@ export async function getSingleProduct(req, res) {
         message: "Product not found",
       });
     }
+
     res.json({
       success: true,
       product,
     });
   } catch (error) {
+    console.error("Get Single Product Error:", error);
+
     res.status(500).json({
       success: false,
       message: error.message,
@@ -231,7 +246,9 @@ export async function getSingleProduct(req, res) {
   }
 }
 
+// ======================================================
 // UPDATE PRODUCT
+// ======================================================
 export async function updateProduct(req, res) {
   try {
     let product = await Product.findById(req.params.id);
@@ -253,6 +270,8 @@ export async function updateProduct(req, res) {
       product,
     });
   } catch (error) {
+    console.error("Update Product Error:", error);
+
     res.status(500).json({
       success: false,
       message: error.message,
@@ -260,7 +279,9 @@ export async function updateProduct(req, res) {
   }
 }
 
+// ======================================================
 // DELETE PRODUCT
+// ======================================================
 export async function deleteProduct(req, res) {
   try {
     const product = await Product.findById(req.params.id);
@@ -279,6 +300,8 @@ export async function deleteProduct(req, res) {
       message: "Product deleted",
     });
   } catch (error) {
+    console.error("Delete Product Error:", error);
+
     res.status(500).json({
       success: false,
       message: error.message,
@@ -286,9 +309,13 @@ export async function deleteProduct(req, res) {
   }
 }
 
+// ======================================================
+// UPLOAD PRODUCT IMAGE
+// ======================================================
 export async function uploadProductImage(req, res) {
   try {
-    // CHECK FILE
+    console.log("UPLOAD FILE:", req.file);
+
     if (!req.file) {
       return res.status(400).json({
         success: false,
@@ -296,19 +323,57 @@ export async function uploadProductImage(req, res) {
       });
     }
 
-    // UPLOAD TO CLOUDINARY
+    console.log("FILE PATH:", req.file.path);
+
     const result = await cloudinary.uploader.upload(req.file.path, {
       folder: "ecommerce-products",
     });
+
+    console.log("CLOUDINARY RESULT:", result.secure_url);
 
     res.status(200).json({
       success: true,
       imageUrl: result.secure_url,
     });
   } catch (error) {
+    console.error("UPLOAD ERROR:", error);
+
     res.status(500).json({
       success: false,
       message: error.message,
     });
   }
 }
+
+// export async function uploadProductImage(req, res) {
+//   try {
+//     console.log("UPLOAD FILE:", req.file);
+
+//     if (!req.file) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "No file uploaded",
+//       });
+//     }
+
+//     console.log("FILE PATH:", req.file.path);
+
+//     const result = await cloudinary.uploader.upload(req.file.path, {
+//       folder: "ecommerce-products",
+//     });
+
+//     console.log("CLOUDINARY RESULT:", result.secure_url);
+
+//     res.status(200).json({
+//       success: true,
+//       imageUrl: result.secure_url,
+//     });
+//   } catch (error) {
+//     console.error("UPLOAD ERROR:", error);
+
+//     res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// }
