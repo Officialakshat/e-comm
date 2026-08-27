@@ -38,7 +38,7 @@ export default function Order() {
     console.log("View Order:", order);
 
     // For now, just show the selected order
-    alert(`Order ID: ${order._id}`);
+    alert(`Order ID: ${order.orderStatus}`);
   };
 
   // Edit order status

@@ -1,6 +1,6 @@
-// admin/Users.jsx
-import { useState } from "react";
-import { badgeStyle, initialCustomers } from "../data/AdminData";
+import { useEffect, useState } from "react";
+import { badgeStyle } from "../data/AdminData";
+import { getAllUsers } from "../services/users";
 
 // ── Delete confirm modal ────────────────────────────────
 function DeleteModal({ user, onConfirm, onCancel }) {
@@ -140,7 +140,9 @@ function EditModal({ user, onSave, onCancel }) {
 const BADGE_FILTERS = ["All", "Premium", "Regular", "New"];
 
 export default function Users() {
-  const [users, setUsers] = useState(initialCustomers);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
   const [selected, setSelected] = useState(null); // detail view
@@ -151,6 +153,27 @@ export default function Users() {
   const showToast = (msg) => {
     setToast(msg);
     setTimeout(() => setToast(""), 2500);
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const data = await getAllUsers();
+
+      setUsers(data.users || []);
+    } catch (error) {
+      console.error("Fetch Users Error:", error);
+
+      setError(error.response?.data?.message || "Failed to fetch users");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const visible = users.filter((u) => {

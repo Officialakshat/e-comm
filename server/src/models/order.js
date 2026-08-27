@@ -110,5 +110,6 @@ const orderSchema = new Schema(
     timestamps: true,
   },
 );
+const Order = model.Order || model("Order", orderSchema);
 
-export default model("Order", orderSchema);
+export default Order;
