@@ -27,4 +27,6 @@ router.get("/", protect, admin, getOrders);
 // ADMIN UPDATE STATUS
 router.put("/:id", protect, admin, updateOrderStatus);
 
+router.get("/", protect, admin, getOrders);
+
 export default router;

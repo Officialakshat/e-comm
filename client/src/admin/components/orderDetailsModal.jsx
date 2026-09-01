@@ -1,4 +1,3 @@
-
 // admin/orders/OrderDetailsModal.jsx
 
 import { useEffect, useRef } from "react";
@@ -82,14 +81,11 @@ export default function OrderDetailsModal({ order, onClose }) {
   const totalPrice = Number(order.totalPrice || 0);
 
   // Status styling
-  const statusClass =
-    statusStyle?.[orderStatus] ||
-    "bg-gray-100 text-gray-600";
+  const statusClass = statusStyle?.[orderStatus] || "bg-gray-100 text-gray-600";
 
   // Payment styling
   const paymentClass =
-    paymentStyle?.[paymentMethod] ||
-    "bg-gray-100 text-gray-600";
+    paymentStyle?.[paymentMethod] || "bg-gray-100 text-gray-600";
 
   return (
     <div
@@ -105,7 +101,6 @@ export default function OrderDetailsModal({ order, onClose }) {
           MODAL
       ───────────────────────────────────── */}
       <div className="w-full max-w-3xl max-h-[92vh] bg-white rounded-[20px] shadow-2xl overflow-hidden flex flex-col">
-
         {/* ─────────────────────────────────────
             HEADER
         ───────────────────────────────────── */}
@@ -124,7 +119,6 @@ export default function OrderDetailsModal({ order, onClose }) {
           </div>
 
           <div className="flex items-center gap-2.5 shrink-0">
-
             {/* Status */}
             <span
               className={`text-[10px] font-semibold px-2.5 py-1 rounded-full ${statusClass}`}
@@ -155,16 +149,11 @@ export default function OrderDetailsModal({ order, onClose }) {
             BODY
         ───────────────────────────────────── */}
         <div className="flex-1 overflow-y-auto px-5 py-5 space-y-4">
-
           {/* ─────────────────────────────────
               CUSTOMER INFORMATION
           ───────────────────────────────── */}
-          <Section
-            title="Customer Information"
-            icon="👤"
-          >
+          <Section title="Customer Information" icon="👤">
             <div className="flex items-center gap-3 mb-3">
-
               {/* Avatar */}
               <div className="w-10 h-10 rounded-full bg-[#C9B194]/20 text-[#C9B194] text-sm font-bold flex items-center justify-center shrink-0">
                 {customerName.charAt(0).toUpperCase()}
@@ -182,7 +171,6 @@ export default function OrderDetailsModal({ order, onClose }) {
             </div>
 
             <div className="grid grid-cols-2 gap-2">
-
               {/* Customer ID */}
               <div className="bg-white rounded-xl px-3 py-2 border border-[#f0e8df]">
                 <p className="text-[9px] text-[#C9B194] font-medium uppercase tracking-widest mb-0.5">
@@ -212,12 +200,8 @@ export default function OrderDetailsModal({ order, onClose }) {
           {/* ─────────────────────────────────
               SHIPPING ADDRESS
           ───────────────────────────────── */}
-          <Section
-            title="Shipping Address"
-            icon="📍"
-          >
+          <Section title="Shipping Address" icon="📍">
             <div className="flex items-start gap-3">
-
               <div className="w-8 h-8 bg-white rounded-xl border border-[#f0e8df] flex items-center justify-center shrink-0 mt-0.5">
                 <svg
                   width="14"
@@ -233,7 +217,6 @@ export default function OrderDetailsModal({ order, onClose }) {
               </div>
 
               <div className="min-w-0">
-
                 <p className="text-[13px] font-medium text-gray-800">
                   {shippingAddress.address || "-"}
                 </p>
@@ -246,7 +229,6 @@ export default function OrderDetailsModal({ order, onClose }) {
                 <p className="text-[12px] text-gray-500 mt-0.5">
                   {shippingAddress.country || "-"}
                 </p>
-
               </div>
             </div>
           </Section>
@@ -254,19 +236,12 @@ export default function OrderDetailsModal({ order, onClose }) {
           {/* ─────────────────────────────────
               ORDERED PRODUCTS
           ───────────────────────────────── */}
-          <Section
-            title="Ordered Products"
-            icon="📦"
-          >
+          <Section title="Ordered Products" icon="📦">
             <div className="space-y-2.5">
-
               {orderItems.length === 0 ? (
-                <p className="text-sm text-gray-400">
-                  No products found.
-                </p>
+                <p className="text-sm text-gray-400">No products found.</p>
               ) : (
                 orderItems.map((item, index) => {
-
                   const price = Number(item.price || 0);
                   const quantity = Number(item.quantity || 0);
                   const itemTotal = price * quantity;
@@ -276,7 +251,6 @@ export default function OrderDetailsModal({ order, onClose }) {
                       key={item._id || index}
                       className="flex items-center gap-3 bg-white rounded-xl p-2.5 border border-[#f0e8df]"
                     >
-
                       {/* Product image */}
                       <div className="w-11 h-11 rounded-lg overflow-hidden bg-[#fdf5ec] shrink-0">
                         {item.image ? (
@@ -298,16 +272,12 @@ export default function OrderDetailsModal({ order, onClose }) {
                           {item.name}
                         </p>
 
-                        <p className="text-[10px] text-gray-400">
-                          Product
-                        </p>
+                        <p className="text-[10px] text-gray-400">Product</p>
                       </div>
 
                       {/* Price */}
                       <div className="text-center shrink-0 min-w-15">
-                        <p className="text-[10px] text-gray-400">
-                          Price
-                        </p>
+                        <p className="text-[10px] text-gray-400">Price</p>
 
                         <p className="text-[12px] font-semibold text-gray-900">
                           ₹{price.toLocaleString("en-IN")}
@@ -316,9 +286,7 @@ export default function OrderDetailsModal({ order, onClose }) {
 
                       {/* Quantity */}
                       <div className="text-center shrink-0 min-w-9">
-                        <p className="text-[10px] text-gray-400">
-                          Qty
-                        </p>
+                        <p className="text-[10px] text-gray-400">Qty</p>
 
                         <p className="text-[12px] font-semibold text-gray-900">
                           ×{quantity}
@@ -327,9 +295,7 @@ export default function OrderDetailsModal({ order, onClose }) {
 
                       {/* Total */}
                       <div className="text-right shrink-0 min-w-18">
-                        <p className="text-[10px] text-gray-400">
-                          Total
-                        </p>
+                        <p className="text-[10px] text-gray-400">Total</p>
 
                         <p className="text-[13px] font-bold text-gray-900">
                           ₹{itemTotal.toLocaleString("en-IN")}
@@ -339,19 +305,15 @@ export default function OrderDetailsModal({ order, onClose }) {
                   );
                 })
               )}
-
             </div>
 
             {/* ─────────────────────────────
                 PRICE SUMMARY
             ───────────────────────────── */}
             <div className="mt-3 bg-white rounded-xl border border-[#f0e8df] overflow-hidden">
-
               {/* Items price */}
               <div className="flex justify-between px-4 py-2.5 border-b border-[#f5ede0]">
-                <span className="text-[12px] text-gray-500">
-                  Items Price
-                </span>
+                <span className="text-[12px] text-gray-500">Items Price</span>
 
                 <span className="text-[12px] font-medium text-gray-900">
                   ₹{itemsPrice.toLocaleString("en-IN")}
@@ -360,15 +322,11 @@ export default function OrderDetailsModal({ order, onClose }) {
 
               {/* Shipping */}
               <div className="flex justify-between px-4 py-2.5 border-b border-[#f5ede0]">
-                <span className="text-[12px] text-gray-500">
-                  Delivery Fee
-                </span>
+                <span className="text-[12px] text-gray-500">Delivery Fee</span>
 
                 <span
                   className={`text-[12px] font-medium ${
-                    shippingPrice === 0
-                      ? "text-green-600"
-                      : "text-gray-900"
+                    shippingPrice === 0 ? "text-green-600" : "text-gray-900"
                   }`}
                 >
                   {shippingPrice === 0
@@ -393,12 +351,8 @@ export default function OrderDetailsModal({ order, onClose }) {
           {/* ─────────────────────────────────
               PAYMENT / DELIVERY INFORMATION
           ───────────────────────────────── */}
-          <Section
-            title="Order Status"
-            icon="📋"
-          >
+          <Section title="Order Status" icon="📋">
             <div className="grid grid-cols-2 gap-3">
-
               {/* Payment status */}
               <div className="bg-white rounded-xl p-3 border border-[#f0e8df]">
                 <p className="text-[9px] text-gray-400 uppercase tracking-widest mb-1">
@@ -407,9 +361,7 @@ export default function OrderDetailsModal({ order, onClose }) {
 
                 <p
                   className={`text-[12px] font-semibold ${
-                    order.isPaid
-                      ? "text-green-600"
-                      : "text-yellow-600"
+                    order.isPaid ? "text-green-600" : "text-yellow-600"
                   }`}
                 >
                   {order.isPaid ? "Paid" : "Not Paid"}
@@ -430,14 +382,10 @@ export default function OrderDetailsModal({ order, onClose }) {
 
                 <p
                   className={`text-[12px] font-semibold ${
-                    order.isDelivered
-                      ? "text-green-600"
-                      : "text-gray-600"
+                    order.isDelivered ? "text-green-600" : "text-gray-600"
                   }`}
                 >
-                  {order.isDelivered
-                    ? "Delivered"
-                    : "Not Delivered"}
+                  {order.isDelivered ? "Delivered" : "Not Delivered"}
                 </p>
 
                 {order.deliveredAt && (
@@ -448,14 +396,12 @@ export default function OrderDetailsModal({ order, onClose }) {
               </div>
             </div>
           </Section>
-
         </div>
 
         {/* ─────────────────────────────────────
             FOOTER
         ───────────────────────────────────── */}
         <div className="shrink-0 bg-white border-t border-[#f5ede0] px-5 py-4 flex gap-3">
-
           <button
             onClick={onClose}
             className="flex-1 border border-[#ede5da] hover:border-[#C9B194] text-gray-600 hover:text-[#C9B194] text-[13px] font-medium py-2.5 rounded-xl transition-colors"
@@ -482,13 +428,10 @@ export default function OrderDetailsModal({ order, onClose }) {
               <polyline points="7 10 12 15 17 10" />
               <line x1="12" y1="15" x2="12" y2="3" />
             </svg>
-
             Download Invoice
           </button>
-
         </div>
       </div>
     </div>
   );
 }
-```
