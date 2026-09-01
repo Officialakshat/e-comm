@@ -50,7 +50,6 @@ export default function Products() {
   const [maxPrice, setMaxPrice] = useState("");
 
   const [sort, setSort] = useState("");
-
   const [stock, setStock] = useState("");
 
   const [featured, setFeatured] = useState(false);
@@ -87,8 +86,6 @@ export default function Products() {
         newArrival: newArrival ? true : undefined,
         bestDeal: bestDeal ? true : undefined,
       };
-
-      console.log("Product filters:", params);
 
       const data = await getProducts(params);
 
@@ -172,8 +169,10 @@ export default function Products() {
 
   if (loading) {
     return (
-      <div className="p-6">
-        <h2 className="text-lg font-semibold">Loading Products...</h2>
+      <div className="p-5 sm:p-6">
+        <div className="bg-white border border-[#ede5da] rounded-2xl p-10 text-center">
+          <p className="text-[13px] text-gray-500">Loading products...</p>
+        </div>
       </div>
     );
   }
@@ -183,27 +182,45 @@ export default function Products() {
   // =========================
 
   if (error) {
-    return <div className="p-6 text-red-500">{error}</div>;
+    return (
+      <div className="p-5 sm:p-6">
+        <div className="bg-white border border-[#ede5da] rounded-2xl p-10 text-center">
+          <p className="text-[13px] text-red-500">{error}</p>
+
+          <button
+            onClick={fetchProducts}
+            className="mt-3 text-[11px] font-medium text-[#C9B194] hover:text-[#9a7f5e]"
+          >
+            Try again
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="p-4 sm:p-6">
+    <div className="p-5 sm:p-6">
       {/* =========================
           HEADER
       ========================= */}
 
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">Products</h1>
+          <h1 className="text-[20px] sm:text-[22px] font-bold text-gray-900">
+            Products
+          </h1>
 
-          <p className="text-sm text-gray-500 mt-1">{count} products found</p>
+          <p className="text-[11px] text-gray-400 mt-1">
+            Manage your products and inventory
+          </p>
         </div>
 
         <button
           onClick={() => navigate("/admin/addProducts")}
-          className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800"
+          className="flex items-center justify-center gap-2 bg-[#C9B194] text-white text-[11px] font-semibold px-4 py-2.5 rounded-xl hover:bg-[#b99e80] transition-colors shadow-sm"
         >
-          + Add Product
+          <span className="text-base leading-none">+</span>
+          Add Product
         </button>
       </div>
 
@@ -211,22 +228,71 @@ export default function Products() {
           FILTERS
       ========================= */}
 
-      <div className="bg-white border border-[#ede5da] rounded-xl p-4 mb-6">
+      <div className="bg-white border border-[#ede5da] rounded-2xl p-4 sm:p-5 mb-5">
+        {/* Filter heading */}
+
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-[#f8f5f1] flex items-center justify-center">
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#9a7f5e"
+                strokeWidth="2"
+              >
+                <path d="M4 6h16" />
+                <path d="M7 12h10" />
+                <path d="M10 18h4" />
+              </svg>
+            </div>
+
+            <h3 className="text-[13px] font-semibold text-gray-800">Filters</h3>
+          </div>
+
+          <button
+            onClick={clearFilters}
+            className="text-[10px] font-medium text-gray-400 hover:text-red-500 transition-colors"
+          >
+            Clear all
+          </button>
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {/* SEARCH */}
+          {/* =========================
+              SEARCH
+          ========================= */}
 
-          <input
-            type="text"
-            placeholder="Search products..."
-            value={keyword}
-            onChange={(e) => {
-              setKeyword(e.target.value);
-              setPage(1);
-            }}
-            className="border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-[#C9B194]"
-          />
+          <div className="relative">
+            <svg
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9a7f5e]"
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
+            </svg>
 
-          {/* CATEGORY */}
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={keyword}
+              onChange={(e) => {
+                setKeyword(e.target.value);
+                setPage(1);
+              }}
+              className="w-full bg-[#f8f5f1] border border-[#ede5da] rounded-xl pl-9 pr-3 py-2.5 text-[11px] text-gray-700 outline-none focus:border-[#C9B194] transition-colors placeholder:text-[#b0a090]"
+            />
+          </div>
+
+          {/* =========================
+              CATEGORY
+          ========================= */}
 
           <select
             value={category}
@@ -234,7 +300,7 @@ export default function Products() {
               setCategory(e.target.value);
               setPage(1);
             }}
-            className="border rounded-lg px-3 py-2 outline-none"
+            className="bg-[#f8f5f1] border border-[#ede5da] rounded-xl px-3 py-2.5 text-[11px] text-gray-600 outline-none focus:border-[#C9B194] transition-colors"
           >
             <option value="">All Categories</option>
 
@@ -245,7 +311,9 @@ export default function Products() {
             ))}
           </select>
 
-          {/* SORT */}
+          {/* =========================
+              SORT
+          ========================= */}
 
           <select
             value={sort}
@@ -253,16 +321,16 @@ export default function Products() {
               setSort(e.target.value);
               setPage(1);
             }}
-            className="border rounded-lg px-3 py-2 outline-none"
+            className="bg-[#f8f5f1] border border-[#ede5da] rounded-xl px-3 py-2.5 text-[11px] text-gray-600 outline-none focus:border-[#C9B194] transition-colors"
           >
             <option value="">Newest</option>
-
             <option value="low">Price: Low → High</option>
-
             <option value="high">Price: High → Low</option>
           </select>
 
-          {/* STOCK */}
+          {/* =========================
+              STOCK
+          ========================= */}
 
           <select
             value={stock}
@@ -270,18 +338,17 @@ export default function Products() {
               setStock(e.target.value);
               setPage(1);
             }}
-            className="border rounded-lg px-3 py-2 outline-none"
+            className="bg-[#f8f5f1] border border-[#ede5da] rounded-xl px-3 py-2.5 text-[11px] text-gray-600 outline-none focus:border-[#C9B194] transition-colors"
           >
             <option value="">All Stock</option>
-
             <option value="inStock">In Stock</option>
-
             <option value="lowStock">Low Stock</option>
-
             <option value="outOfStock">Out of Stock</option>
           </select>
 
-          {/* MIN PRICE */}
+          {/* =========================
+              MIN PRICE
+          ========================= */}
 
           <input
             type="number"
@@ -292,10 +359,12 @@ export default function Products() {
               setMinPrice(e.target.value);
               setPage(1);
             }}
-            className="border rounded-lg px-3 py-2 outline-none"
+            className="bg-[#f8f5f1] border border-[#ede5da] rounded-xl px-3 py-2.5 text-[11px] text-gray-700 outline-none focus:border-[#C9B194] transition-colors placeholder:text-[#b0a090]"
           />
 
-          {/* MAX PRICE */}
+          {/* =========================
+              MAX PRICE
+          ========================= */}
 
           <input
             type="number"
@@ -306,12 +375,20 @@ export default function Products() {
               setMaxPrice(e.target.value);
               setPage(1);
             }}
-            className="border rounded-lg px-3 py-2 outline-none"
+            className="bg-[#f8f5f1] border border-[#ede5da] rounded-xl px-3 py-2.5 text-[11px] text-gray-700 outline-none focus:border-[#C9B194] transition-colors placeholder:text-[#b0a090]"
           />
 
-          {/* FEATURED */}
+          {/* =========================
+              FEATURED
+          ========================= */}
 
-          <label className="flex items-center gap-2 border rounded-lg px-3 py-2 cursor-pointer">
+          <label
+            className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border cursor-pointer transition-colors ${
+              featured
+                ? "bg-[#fdf9f5] border-[#C9B194]"
+                : "bg-[#f8f5f1] border-[#ede5da]"
+            }`}
+          >
             <input
               type="checkbox"
               checked={featured}
@@ -319,14 +396,23 @@ export default function Products() {
                 setFeatured(e.target.checked);
                 setPage(1);
               }}
+              className="accent-[#C9B194]"
             />
 
-            <span>Featured</span>
+            <span className="text-[11px] text-gray-600">Featured</span>
           </label>
 
-          {/* NEW ARRIVAL */}
+          {/* =========================
+              NEW ARRIVAL
+          ========================= */}
 
-          <label className="flex items-center gap-2 border rounded-lg px-3 py-2 cursor-pointer">
+          <label
+            className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border cursor-pointer transition-colors ${
+              newArrival
+                ? "bg-[#fdf9f5] border-[#C9B194]"
+                : "bg-[#f8f5f1] border-[#ede5da]"
+            }`}
+          >
             <input
               type="checkbox"
               checked={newArrival}
@@ -334,14 +420,23 @@ export default function Products() {
                 setNewArrival(e.target.checked);
                 setPage(1);
               }}
+              className="accent-[#C9B194]"
             />
 
-            <span>New Arrival</span>
+            <span className="text-[11px] text-gray-600">New Arrival</span>
           </label>
 
-          {/* BEST DEAL */}
+          {/* =========================
+              BEST DEAL
+          ========================= */}
 
-          <label className="flex items-center gap-2 border rounded-lg px-3 py-2 cursor-pointer">
+          <label
+            className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border cursor-pointer transition-colors ${
+              bestDeal
+                ? "bg-[#fdf9f5] border-[#C9B194]"
+                : "bg-[#f8f5f1] border-[#ede5da]"
+            }`}
+          >
             <input
               type="checkbox"
               checked={bestDeal}
@@ -349,52 +444,87 @@ export default function Products() {
                 setBestDeal(e.target.checked);
                 setPage(1);
               }}
+              className="accent-[#C9B194]"
             />
 
-            <span>Best Deal</span>
+            <span className="text-[11px] text-gray-600">Best Deal</span>
           </label>
-
-          {/* CLEAR */}
-
-          <button
-            onClick={clearFilters}
-            className="border border-red-300 text-red-500 rounded-lg px-3 py-2 hover:bg-red-50"
-          >
-            Clear Filters
-          </button>
         </div>
       </div>
 
       {/* =========================
-          PRODUCT TABLE
+          PRODUCT TABLE CARD
       ========================= */}
 
-      {products.length > 0 ? (
-        <ProductsTable
-          products={products}
-          onEdit={setEditingProduct}
-          onDelete={handleDelete}
-        />
-      ) : (
-        <div className="bg-white border rounded-xl py-12 text-center text-gray-500">
-          No products found.
+      <div className="bg-white border border-[#ede5da] rounded-2xl overflow-hidden">
+        {/* Table Header */}
+
+        <div className="px-5 py-4 border-b border-[#f5ede0] flex items-center justify-between">
+          <div>
+            <h3 className="text-[14px] font-semibold text-gray-900">
+              All Products
+            </h3>
+
+            <p className="text-[10px] text-gray-400 mt-0.5">
+              {count} products found
+            </p>
+          </div>
+
+          <div className="text-[10px] text-gray-400">
+            Page {page} of {pages}
+          </div>
         </div>
-      )}
+
+        {/* Product Table */}
+
+        {products.length > 0 ? (
+          <ProductsTable
+            products={products}
+            onEdit={setEditingProduct}
+            onDelete={handleDelete}
+          />
+        ) : (
+          <div className="py-14 text-center">
+            <div className="w-12 h-12 rounded-full bg-[#f8f5f1] flex items-center justify-center mx-auto mb-3">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#C9B194"
+                strokeWidth="1.8"
+              >
+                <path d="M6 2h12l2 5H4l2-5Z" />
+                <path d="M4 7v13h16V7" />
+                <path d="M9 11h6" />
+              </svg>
+            </div>
+
+            <p className="text-[12px] font-medium text-gray-700">
+              No products found
+            </p>
+
+            <p className="text-[10px] text-gray-400 mt-1">
+              Try changing your filters or search keyword.
+            </p>
+          </div>
+        )}
+      </div>
 
       {/* =========================
           PAGINATION
       ========================= */}
 
       {pages > 1 && (
-        <div className="flex flex-wrap justify-center items-center gap-2 mt-6">
+        <div className="flex flex-wrap justify-center items-center gap-1.5 mt-5">
           {/* PREVIOUS */}
 
           <button
             disabled={page === 1}
             onClick={() => setPage((prev) => prev - 1)}
-            className="px-4 py-2 border rounded-lg disabled:opacity-40"
+            className="px-3 py-2 rounded-xl border border-[#ede5da] bg-white text-[10px] font-medium text-gray-600 hover:bg-[#fdf9f5] hover:border-[#C9B194] disabled:opacity-40 disabled:hover:bg-white disabled:hover:border-[#ede5da] transition-colors"
           >
-            Previous
+            ← Previous
           </button>
 
           {/* PAGE NUMBERS */}
@@ -404,10 +534,10 @@ export default function Products() {
               <button
                 key={pageNumber}
                 onClick={() => setPage(pageNumber)}
-                className={`px-3 py-2 rounded-lg ${
+                className={`w-8 h-8 rounded-xl text-[10px] font-medium transition-colors ${
                   page === pageNumber
-                    ? "bg-black text-white"
-                    : "border hover:bg-gray-50"
+                    ? "bg-[#C9B194] text-white"
+                    : "bg-white border border-[#ede5da] text-gray-600 hover:bg-[#fdf9f5] hover:border-[#C9B194]"
                 }`}
               >
                 {pageNumber}
@@ -420,9 +550,9 @@ export default function Products() {
           <button
             disabled={page === pages}
             onClick={() => setPage((prev) => prev + 1)}
-            className="px-4 py-2 border rounded-lg disabled:opacity-40"
+            className="px-3 py-2 rounded-xl border border-[#ede5da] bg-white text-[10px] font-medium text-gray-600 hover:bg-[#fdf9f5] hover:border-[#C9B194] disabled:opacity-40 disabled:hover:bg-white disabled:hover:border-[#ede5da] transition-colors"
           >
-            Next
+            Next →
           </button>
         </div>
       )}

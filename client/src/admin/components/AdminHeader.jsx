@@ -34,7 +34,6 @@ export default function AdminHeader({ onSearch }) {
     },
   ];
 
-  // Search
   const handleSearch = (e) => {
     e.preventDefault();
 
