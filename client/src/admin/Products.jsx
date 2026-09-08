@@ -4,6 +4,7 @@ import { getProducts, deleteProduct } from "../services/products";
 import { useNavigate } from "react-router-dom";
 import ProductsTable from "./components/ProductsTable";
 import EditProductModal from "./EditProducts";
+import { getCategories } from "../services/categories";
 
 const CATEGORIES = [
   "Lighting",
@@ -143,6 +144,21 @@ export default function Products() {
       alert("Failed to delete product.");
     }
   };
+
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await getCategories();
+        setCategories(data.categories || []);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   // =========================
   // CLEAR FILTERS
@@ -300,15 +316,17 @@ export default function Products() {
               setCategory(e.target.value);
               setPage(1);
             }}
-            className="bg-[#f8f5f1] border border-[#ede5da] rounded-xl px-3 py-2.5 text-[11px] text-gray-600 outline-none focus:border-[#C9B194] transition-colors"
+            className="border rounded-lg px-3 py-2 outline-none"
           >
             <option value="">All Categories</option>
 
-            {CATEGORIES.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
+            {categories
+              .filter((cat) => cat.status === "Active")
+              .map((cat) => (
+                <option key={cat._id} value={cat.name}>
+                  {cat.name}
+                </option>
+              ))}
           </select>
 
           {/* =========================
