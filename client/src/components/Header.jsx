@@ -30,7 +30,7 @@ export default function Navbar() {
     { name: "New Arrivals", path: "/newArrivals" },
     { name: "Deals", path: "/bestDeals" },
     { name: "Brands", path: "/brands" },
-    { name: "Products", path: "/products" },
+    { name: "Featured Products", path: "/f-products" },
     { name: "My Orders", path: "/MyOrders" },
   ];
 
