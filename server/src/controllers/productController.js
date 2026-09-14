@@ -39,7 +39,7 @@ export async function createProduct(req, res) {
 // ======================================================
 export async function getProducts(req, res) {
   try {
-    const pageSize = 5;
+    const pageSize = Number(req.query.limit) || 5;
 
     const page = Number(req.query.page) || 1;
 

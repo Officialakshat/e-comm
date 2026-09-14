@@ -7,43 +7,49 @@ export default function ProductCard({ item }) {
   const { toggleWishlist, isWishlisted } = useWishlist();
   const [added, setAdded] = useState(false);
 
-  const wishlisted = isWishlisted(item.id);
-  const inCart = isInCart(item.id);
+  // MongoDB uses _id
+  const productId = item._id;
 
-  const discount = item.original
-    ? Math.round(((item.original - item.price) / item.original) * 100)
-    : null;
+  const wishlisted = isWishlisted(productId);
+  const inCart = isInCart(productId);
 
   const handleAddToCart = (e) => {
     e.stopPropagation();
+
     addToCart(item);
     setAdded(true);
-    setTimeout(() => setAdded(false), 1800);
+
+    setTimeout(() => {
+      setAdded(false);
+    }, 1800);
   };
 
   return (
     <div className="group relative bg-white rounded-2xl overflow-hidden border border-[#ede5da] hover:border-[#C9B19460] hover:shadow-[0_8px_30px_#C9B19420] hover:-translate-y-1 transition-all duration-300">
-      {/* ── Image ── */}
+      {/* Image */}
       <div className="relative overflow-hidden bg-[#fdf5ec] h-48 sm:h-52">
         <img
-          src={item.img}
+          src={item.image}
           alt={item.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
 
-        {/* Tag */}
-        {item.tag && (
-          <span
-            className={`absolute top-2.5 left-2.5 text-[10px] font-semibold px-2.5 py-1 rounded-full ${item.tagColor || "bg-[#C9B194] text-white"}`}
-          >
-            {item.tag}
+        {/* Product Tag */}
+        {item.newArrival && (
+          <span className="absolute top-2.5 left-2.5 bg-[#C9B194] text-white text-[10px] font-semibold px-2.5 py-1 rounded-full">
+            New Arrival
           </span>
         )}
 
-        {/* Auto discount badge */}
-        {!item.tag && discount && (
+        {!item.newArrival && item.featured && (
+          <span className="absolute top-2.5 left-2.5 bg-[#1a1a1a] text-white text-[10px] font-semibold px-2.5 py-1 rounded-full">
+            Featured
+          </span>
+        )}
+
+        {!item.newArrival && !item.featured && item.bestDeal && (
           <span className="absolute top-2.5 left-2.5 bg-red-500 text-white text-[10px] font-semibold px-2.5 py-1 rounded-full">
-            -{discount}%
+            Best Deal
           </span>
         )}
 
@@ -67,11 +73,11 @@ export default function ProductCard({ item }) {
           </svg>
         </button>
 
-        {/* Slide-up quick add */}
-        <div className="absolute bottom-0 left-0 right-0   translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+        {/* Quick Add */}
+        <div className="absolute bottom-0 left-0 right-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
           <button
             onClick={handleAddToCart}
-            className={`w-full text-white text-[12px]  font-medium py-2.5 transition-colors duration-200 ${
+            className={`w-full text-white text-[12px] font-medium py-2.5 transition-colors duration-200 ${
               added
                 ? "bg-green-600"
                 : inCart
@@ -84,53 +90,50 @@ export default function ProductCard({ item }) {
         </div>
       </div>
 
-      {/* ── Info ── */}
+      {/* Product Info */}
       <div className="p-3.5">
+        {/* Category */}
         <p className="text-[10px] font-medium text-[#C9B194] uppercase tracking-widest mb-0.5">
           {item.category || "General"}
         </p>
+
+        {/* Name */}
         <p className="text-[13.5px] font-medium text-gray-800 truncate mb-2">
           {item.name}
         </p>
 
-        {/* Stars */}
-        {item.rating && (
-          <div className="flex items-center gap-1 mb-2">
-            {[1, 2, 3, 4, 5].map((s) => (
-              <svg
-                key={s}
-                width="10"
-                height="10"
-                viewBox="0 0 24 24"
-                fill={s <= Math.round(item.rating) ? "#C9B194" : "none"}
-                stroke="#C9B194"
-                strokeWidth="2"
-              >
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-              </svg>
-            ))}
-            <span className="text-[10px] text-gray-400 ml-0.5">
-              ({item.reviews || 0})
-            </span>
-          </div>
-        )}
+        {/* Rating */}
+        <div className="flex items-center gap-1 mb-2">
+          {[1, 2, 3, 4, 5].map((s) => (
+            <svg
+              key={s}
+              width="10"
+              height="10"
+              viewBox="0 0 24 24"
+              fill={s <= Math.round(item.rating || 0) ? "#C9B194" : "none"}
+              stroke="#C9B194"
+              strokeWidth="2"
+            >
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+          ))}
 
-        {/* Price row + cart icon button */}
+          <span className="text-[10px] text-gray-400 ml-0.5">
+            ({item.numReviews || 0})
+          </span>
+        </div>
+
+        {/* Price + Cart */}
         <div className="flex items-center justify-between gap-2">
           <div>
             <span className="text-[15px] font-bold text-gray-900">
-              ₹{item.price.toLocaleString()}
+              ₹{Number(item.price || 0).toLocaleString("en-IN")}
             </span>
-            {item.original && (
-              <span className="text-[11px] text-gray-400 line-through ml-1.5">
-                ₹{item.original.toLocaleString()}
-              </span>
-            )}
           </div>
 
           <button
             onClick={handleAddToCart}
-            className={`w-8 h-8 rounded-xl flex  items-center justify-center shrink-0 transition-all duration-200 ${
+            className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-all duration-200 ${
               added
                 ? "bg-green-500 scale-110"
                 : "bg-[#1a1a1a] hover:bg-[#C9B194]"
@@ -156,7 +159,7 @@ export default function ProductCard({ item }) {
                 stroke="white"
                 strokeWidth="2"
               >
-                <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                <path d="M6 2 3 6v14a2 2 0 0 1-2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
                 <line x1="3" y1="6" x2="21" y2="6" />
                 <path d="M16 10a4 4 0 0 1-8 0" />
               </svg>
@@ -164,7 +167,7 @@ export default function ProductCard({ item }) {
           </button>
         </div>
 
-        {/* Already in cart tag */}
+        {/* Cart Status */}
         {inCart && !added && (
           <p className="text-[10px] text-[#C9B194] font-medium mt-1.5 flex items-center gap-1">
             <svg
