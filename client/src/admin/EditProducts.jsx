@@ -1,18 +1,6 @@
 // components/EditProductModal.jsx
 import { useState, useEffect, useRef } from "react";
-import { updateProduct } from "../services/products";
-
-const CATEGORIES = [
-  "Lighting",
-  "Electronics",
-  "Furniture",
-  "Decor",
-  "Kitchen",
-  "Plants",
-  "Fashion",
-  "Bedroom",
-  "Office",
-];
+import { updateProduct, uploadImage } from "../services/products";
 
 // ── Reusable field components ─────────────────────────────
 function Field({ label, required, error, children }) {
@@ -21,7 +9,9 @@ function Field({ label, required, error, children }) {
       <label className="text-[11px] font-medium text-gray-500 uppercase tracking-wider block mb-1">
         {label} {required && <span className="text-red-400">*</span>}
       </label>
+
       {children}
+
       {error && <p className="text-[10px] text-red-500 mt-1">{error}</p>}
     </div>
   );
@@ -42,6 +32,7 @@ function Toggle({ label, desc, value, onChange }) {
         <p className="text-[13px] font-medium text-gray-800">{label}</p>
         <p className="text-[10px] text-gray-400">{desc}</p>
       </div>
+
       <button
         type="button"
         onClick={() => onChange(!value)}
@@ -59,7 +50,7 @@ function Toggle({ label, desc, value, onChange }) {
   );
 }
 
-// ── Section heading inside modal ──────────────────────────
+// ── Section heading ───────────────────────────────────────
 function SectionLabel({ children }) {
   return (
     <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mt-5 mb-3">
@@ -75,119 +66,237 @@ const EMPTY = {
   brand: "",
   category: "",
   price: "",
+  originalPrice: "",
   stock: "",
   image: "",
+  dealEndsAt: "",
   featured: false,
   newArrival: false,
   bestDeal: false,
 };
 
-export default function EditProductModal({ product, onSave, onClose }) {
+export default function EditProductModal({
+  product,
+  onSave,
+  onClose,
+  categories = [],
+}) {
   const [form, setForm] = useState(EMPTY);
   const [preview, setPreview] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+
   const overlayRef = useRef(null);
 
-  // Pre-fill when product changes
+  // ── Pre-fill when product changes ───────────────────────
   useEffect(() => {
     if (!product) return;
+
     setForm({
       name: product.name ?? "",
       description: product.description ?? "",
       brand: product.brand ?? "",
       category: product.category ?? "",
       price: product.price ?? "",
+      originalPrice: product.originalPrice ?? product.price ?? "",
       stock: product.stock ?? "",
       image: product.image ?? "",
+      dealEndsAt: product.dealEndsAt
+        ? new Date(product.dealEndsAt).toISOString().slice(0, 16)
+        : "",
       featured: product.featured ?? false,
       newArrival: product.newArrival ?? false,
       bestDeal: product.bestDeal ?? false,
     });
+
     setPreview(product.image || null);
+    setSelectedFile(null);
     setErrors({});
     setSaved(false);
   }, [product]);
 
-  // Close on Escape
+  // ── Close on Escape ─────────────────────────────────────
   useEffect(() => {
     const h = (e) => {
       if (e.key === "Escape") onClose();
     };
+
     window.addEventListener("keydown", h);
+
     return () => window.removeEventListener("keydown", h);
   }, [onClose]);
 
   if (!product) return null;
 
+  // ── Form setter ─────────────────────────────────────────
   const set = (key, val) => {
-    setForm((f) => ({ ...f, [key]: val }));
-    setErrors((e) => ({ ...e, [key]: "" }));
+    setForm((f) => ({
+      ...f,
+      [key]: val,
+    }));
+
+    setErrors((e) => ({
+      ...e,
+      [key]: "",
+    }));
   };
 
+  // ── Image selection ─────────────────────────────────────
   const handleImage = (e) => {
-    const file = e.target.files[0];
-    if (file) setPreview(URL.createObjectURL(file));
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    // 5 MB validation
+    if (file.size > 5 * 1024 * 1024) {
+      setErrors((prev) => ({
+        ...prev,
+        image: "Image must be smaller than 5 MB",
+      }));
+
+      return;
+    }
+
+    setSelectedFile(file);
+    setPreview(URL.createObjectURL(file));
+
+    setErrors((prev) => ({
+      ...prev,
+      image: "",
+    }));
   };
 
+  // ── Validation ──────────────────────────────────────────
   const validate = () => {
     const e = {};
-    if (!form.name.trim()) e.name = "Name is required";
-    if (!form.description.trim()) e.description = "Description is required";
-    if (!form.brand.trim()) e.brand = "Brand is required";
-    if (!form.category) e.category = "Select a category";
-    if (!form.price || Number(form.price) <= 0) e.price = "Enter a valid price";
-    if (form.stock === "" || isNaN(form.stock)) e.stock = "Stock is required";
+
+    if (!form.name.trim()) {
+      e.name = "Name is required";
+    }
+
+    if (!form.description.trim()) {
+      e.description = "Description is required";
+    }
+
+    if (!form.brand.trim()) {
+      e.brand = "Brand is required";
+    }
+
+    if (!form.category) {
+      e.category = "Select a category";
+    }
+
+    if (!form.price || isNaN(form.price) || Number(form.price) <= 0) {
+      e.price = "Enter a valid selling price";
+    }
+
+    if (
+      !form.originalPrice ||
+      isNaN(form.originalPrice) ||
+      Number(form.originalPrice) <= 0
+    ) {
+      e.originalPrice = "Enter a valid original price";
+    } else if (form.price && Number(form.originalPrice) <= Number(form.price)) {
+      e.originalPrice = "Original price must be higher than selling price";
+    }
+
+    if (form.stock === "" || isNaN(form.stock) || Number(form.stock) < 0) {
+      e.stock = "Enter a valid stock quantity";
+    }
+
+    if (form.bestDeal && !form.dealEndsAt) {
+      e.dealEndsAt = "Set an end date and time for the deal";
+    }
+
     setErrors(e);
+
     return Object.keys(e).length === 0;
   };
 
+  // ── Save product ─────────────────────────────────────────
   const handleSave = async (e) => {
     e.preventDefault();
-    if (!validate()) return;
 
-    const updated = {
-      ...product,
-      name: form.name.trim(),
-      description: form.description.trim(),
-      brand: form.brand.trim(),
-      category: form.category,
-      price: Number(form.price),
-      stock: Number(form.stock),
-      image: preview || product.image,
-      featured: form.featured,
-      newArrival: form.newArrival,
-      bestDeal: form.bestDeal,
-    };
+    if (!validate()) return;
 
     try {
       setSaving(true);
+
+      // ── Upload new image if selected ────────────────────
+      let imageUrl = product.image;
+
+      if (selectedFile) {
+        imageUrl = await uploadImage(selectedFile);
+      }
+
+      const updated = {
+        name: form.name.trim(),
+        description: form.description.trim(),
+        brand: form.brand.trim(),
+        category: form.category,
+
+        price: Number(form.price),
+        originalPrice: Number(form.originalPrice),
+
+        stock: Number(form.stock),
+
+        image: imageUrl,
+
+        featured: form.featured,
+        newArrival: form.newArrival,
+        bestDeal: form.bestDeal,
+
+        dealEndsAt: form.bestDeal
+          ? new Date(form.dealEndsAt).toISOString()
+          : null,
+      };
+
       await updateProduct(product._id, updated);
+
       setSaved(true);
-      if (onSave) await onSave();
+
+      if (onSave) {
+        await onSave();
+      }
+
       setTimeout(() => {
         setSaved(false);
         onClose();
       }, 1400);
     } catch (err) {
-      console.error(err);
-      alert("Failed to update product. Please try again.");
+      console.error("Update product error:", err);
+
+      alert(
+        err?.response?.data?.message ||
+          "Failed to update product. Please try again.",
+      );
     } finally {
       setSaving(false);
     }
   };
 
+  // ── Discount calculation ────────────────────────────────
   const discount =
-    form.price && form.original && Number(form.original) > Number(form.price)
-      ? Math.round((1 - Number(form.price) / Number(form.original)) * 100)
+    form.price &&
+    form.originalPrice &&
+    Number(form.originalPrice) > Number(form.price)
+      ? Math.round(
+          ((Number(form.originalPrice) - Number(form.price)) /
+            Number(form.originalPrice)) *
+            100,
+        )
       : null;
 
   return (
     <div
       ref={overlayRef}
       onClick={(e) => {
-        if (e.target === overlayRef.current) onClose();
+        if (e.target === overlayRef.current) {
+          onClose();
+        }
       }}
       className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/45 backdrop-blur-[2px] animate-[fadeIn_0.2s_ease]"
     >
@@ -201,10 +310,12 @@ export default function EditProductModal({ product, onSave, onClose }) {
             >
               Edit product
             </h2>
+
             <p className="text-[11px] text-gray-400 mt-0.5">
               All fields marked * are required
             </p>
           </div>
+
           <button
             onClick={onClose}
             className="w-8 h-8 flex items-center justify-center rounded-xl border border-[#ede5da] bg-[#f8f5f1] hover:bg-[#efe8de] text-gray-500 hover:text-gray-700 transition-colors"
@@ -248,25 +359,30 @@ export default function EditProductModal({ product, onSave, onClose }) {
               </div>
             )}
           </div>
+
           <div className="min-w-0 flex-1">
             <p className="text-[13px] font-semibold text-gray-800 truncate">
               {form.name || "Untitled product"}
             </p>
+
             <p className="text-[11px] text-gray-400">
               {form.brand || "No brand"} · {form.category || "No category"}
             </p>
           </div>
+
           <div className="flex gap-1.5 flex-wrap justify-end shrink-0">
             {form.featured && (
               <span className="text-[9px] font-semibold bg-[#fdf0e2] text-[#9a7f5e] border border-[#e8d5bb] px-2 py-0.5 rounded-full">
                 Featured
               </span>
             )}
+
             {form.newArrival && (
               <span className="text-[9px] font-semibold bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full">
                 New
               </span>
             )}
+
             {form.bestDeal && (
               <span className="text-[9px] font-semibold bg-red-50 text-red-600 border border-red-200 px-2 py-0.5 rounded-full">
                 Deal
@@ -279,6 +395,7 @@ export default function EditProductModal({ product, onSave, onClose }) {
         <form onSubmit={handleSave} className="px-5 pb-5">
           {/* ─ Basic Info ─ */}
           <SectionLabel>Basic information</SectionLabel>
+
           <div className="grid grid-cols-2 gap-3">
             <div className="col-span-2">
               <Field label="Product name" required error={errors.name}>
@@ -307,8 +424,14 @@ export default function EditProductModal({ product, onSave, onClose }) {
                 className={inputCls(errors.category)}
               >
                 <option value="">Select…</option>
-                {CATEGORIES.map((c) => (
-                  <option key={c}>{c}</option>
+
+                {categories.map((category) => (
+                  <option
+                    key={category._id || category.name}
+                    value={category.name || category}
+                  >
+                    {category.name || category}
+                  </option>
                 ))}
               </select>
             </Field>
@@ -328,15 +451,31 @@ export default function EditProductModal({ product, onSave, onClose }) {
 
           {/* ─ Pricing & Stock ─ */}
           <SectionLabel>Pricing and stock</SectionLabel>
+
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Price (₹)" required error={errors.price}>
+            <Field label="Selling price (₹)" required error={errors.price}>
               <input
                 type="number"
                 min="0"
                 value={form.price}
                 onChange={(e) => set("price", e.target.value)}
-                placeholder="1299"
+                placeholder="999"
                 className={inputCls(errors.price)}
+              />
+            </Field>
+
+            <Field
+              label="Original price (₹)"
+              required
+              error={errors.originalPrice}
+            >
+              <input
+                type="number"
+                min="0"
+                value={form.originalPrice}
+                onChange={(e) => set("originalPrice", e.target.value)}
+                placeholder="1299"
+                className={inputCls(errors.originalPrice)}
               />
             </Field>
 
@@ -352,7 +491,33 @@ export default function EditProductModal({ product, onSave, onClose }) {
             </Field>
           </div>
 
-          {/* Stock status pill */}
+          {/* Discount preview */}
+          {discount !== null && (
+            <div className="mt-3 bg-[#fdf9f5] border border-[#ede5da] rounded-xl px-4 py-3 flex items-center justify-between">
+              <div>
+                <p className="text-[10px] text-gray-400 uppercase tracking-wider">
+                  Discount
+                </p>
+
+                <p className="text-[14px] font-semibold text-[#9a7f5e]">
+                  {discount}% OFF
+                </p>
+              </div>
+
+              <div className="text-right">
+                <p className="text-[10px] text-gray-400">Customer saves</p>
+
+                <p className="text-[13px] font-semibold text-gray-700">
+                  ₹
+                  {(
+                    Number(form.originalPrice) - Number(form.price)
+                  ).toLocaleString("en-IN")}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Stock status */}
           {form.stock !== "" && !isNaN(form.stock) && (
             <div
               className={`mt-2.5 inline-flex items-center gap-1.5 text-[11px] font-medium px-3 py-1 rounded-full border ${
@@ -364,6 +529,7 @@ export default function EditProductModal({ product, onSave, onClose }) {
               }`}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-current" />
+
               {Number(form.stock) === 0
                 ? "Out of stock"
                 : Number(form.stock) <= 10
@@ -374,6 +540,7 @@ export default function EditProductModal({ product, onSave, onClose }) {
 
           {/* ─ Product Image ─ */}
           <SectionLabel>Product image</SectionLabel>
+
           <div className="flex items-start gap-4">
             <div
               className={`w-16 h-16 rounded-2xl overflow-hidden shrink-0 border-2 border-dashed flex items-center justify-center ${
@@ -402,6 +569,7 @@ export default function EditProductModal({ product, onSave, onClose }) {
                 </svg>
               )}
             </div>
+
             <div>
               <label className="cursor-pointer inline-flex items-center gap-2 bg-[#1a1a1a] hover:bg-[#C9B194] text-white text-[12px] font-medium px-4 py-2.5 rounded-xl transition-colors">
                 <svg
@@ -424,13 +592,22 @@ export default function EditProductModal({ product, onSave, onClose }) {
                   onChange={handleImage}
                 />
               </label>
+
               <p className="text-[10px] text-gray-400 mt-1.5">
                 PNG, JPG, WEBP · max 5 MB
               </p>
-              {preview && preview !== product.image && (
+
+              {errors.image && (
+                <p className="text-[10px] text-red-500 mt-1">{errors.image}</p>
+              )}
+
+              {selectedFile && (
                 <button
                   type="button"
-                  onClick={() => setPreview(product.image)}
+                  onClick={() => {
+                    setSelectedFile(null);
+                    setPreview(product.image);
+                  }}
                   className="text-[10px] text-red-400 hover:text-red-600 mt-1 transition-colors block"
                 >
                   Revert to original
@@ -441,6 +618,7 @@ export default function EditProductModal({ product, onSave, onClose }) {
 
           {/* ─ Flags / Toggles ─ */}
           <SectionLabel>Product flags</SectionLabel>
+
           <div className="bg-[#fdf9f5] border border-[#ede5da] rounded-2xl px-4 py-1">
             <Toggle
               label="Featured product"
@@ -448,26 +626,54 @@ export default function EditProductModal({ product, onSave, onClose }) {
               value={form.featured}
               onChange={(v) => set("featured", v)}
             />
+
             <Toggle
               label="New arrival"
               desc="Show in new arrivals section"
               value={form.newArrival}
               onChange={(v) => set("newArrival", v)}
             />
+
             <Toggle
               label="Best deal"
               desc="Show in best deals section with discount badge"
               value={form.bestDeal}
               onChange={(v) => set("bestDeal", v)}
             />
+
+            {/* Deal end date */}
+            {form.bestDeal && (
+              <div className="pt-4 pb-3">
+                <Field label="Deal ends at" required error={errors.dealEndsAt}>
+                  <input
+                    type="datetime-local"
+                    value={form.dealEndsAt}
+                    onChange={(e) => set("dealEndsAt", e.target.value)}
+                    className={inputCls(errors.dealEndsAt)}
+                  />
+                </Field>
+
+                <p className="text-[11px] text-gray-400 mt-1.5">
+                  Best Deals will show a live countdown until this date and
+                  time.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* ─ Read-only meta ─ */}
           <SectionLabel>Product metadata</SectionLabel>
+
           <div className="grid grid-cols-2 gap-3">
             {[
-              { label: "Rating", value: product.rating ?? 0 },
-              { label: "Reviews", value: product.numReviews ?? 0 },
+              {
+                label: "Rating",
+                value: product.rating ?? 0,
+              },
+              {
+                label: "Reviews",
+                value: product.numReviews ?? 0,
+              },
               {
                 label: "Product ID",
                 value: product._id
@@ -492,6 +698,7 @@ export default function EditProductModal({ product, onSave, onClose }) {
                 <p className="text-[9px] font-medium text-[#C9B194] uppercase tracking-widest mb-0.5">
                   {label}
                 </p>
+
                 <p className="text-[13px] font-semibold text-gray-700">
                   {String(value)}
                 </p>
@@ -509,6 +716,7 @@ export default function EditProductModal({ product, onSave, onClose }) {
           >
             Cancel
           </button>
+
           <button
             onClick={handleSave}
             disabled={saving || saved}
@@ -521,6 +729,7 @@ export default function EditProductModal({ product, onSave, onClose }) {
             }`}
           >
             {saved && "✓ Saved!"}
+
             {saving && !saved && (
               <>
                 <svg
@@ -537,6 +746,7 @@ export default function EditProductModal({ product, onSave, onClose }) {
                 Saving…
               </>
             )}
+
             {!saving && !saved && "Save changes"}
           </button>
         </div>

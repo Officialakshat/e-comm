@@ -21,7 +21,9 @@ const EMPTY = {
   brand: "",
   category: "",
   price: "",
+  originalPrice: "",
   stock: "",
+  dealEndsAt: "",
   featured: false,
   newArrival: false,
   bestDeal: false,
@@ -105,15 +107,36 @@ export default function AddProduct({ onAdd, onCancel }) {
 
   const validate = () => {
     const e = {};
+
     if (!form.name.trim()) e.name = "Product name is required";
+
     if (!form.description.trim()) e.description = "Description is required";
+
     if (!form.brand.trim()) e.brand = "Brand name is required";
+
     if (!form.category) e.category = "Select a category";
+
     if (!form.price || isNaN(form.price) || Number(form.price) <= 0)
       e.price = "Enter a valid price";
+
+    if (
+      !form.originalPrice ||
+      isNaN(form.originalPrice) ||
+      Number(form.originalPrice) <= 0
+    ) {
+      e.originalPrice = "Enter a valid original price";
+    } else if (form.price && Number(form.originalPrice) <= Number(form.price)) {
+      e.originalPrice = "Original price must be higher than selling price";
+    }
+
     if (form.stock === "" || isNaN(form.stock))
       e.stock = "Stock quantity is required";
+
+    if (form.bestDeal && !form.dealEndsAt)
+      e.dealEndsAt = "Set an end date and time for the deal";
+
     setErrors(e);
+
     return Object.keys(e).length === 0;
   };
 
@@ -142,12 +165,22 @@ export default function AddProduct({ onAdd, onCancel }) {
         description: form.description.trim(),
         brand: form.brand.trim(),
         category: form.category,
+
         price: Number(form.price),
+        originalPrice: Number(form.originalPrice),
+
         stock: Number(form.stock),
+
         image: imageUrl,
+
         featured: form.featured,
         newArrival: form.newArrival,
         bestDeal: form.bestDeal,
+
+        dealEndsAt: form.bestDeal
+          ? new Date(form.dealEndsAt).toISOString()
+          : null,
+
         rating: 0,
         numReviews: 0,
       };
@@ -255,8 +288,9 @@ export default function AddProduct({ onAdd, onCancel }) {
           </SectionCard>
 
           {/* ── Pricing & Stock ── */}
+          {/* ── Pricing & Stock ── */}
           <SectionCard title="Pricing & Stock">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <Field label="Selling Price (₹)" required error={errors.price}>
                 <input
                   type="number"
@@ -265,6 +299,21 @@ export default function AddProduct({ onAdd, onCancel }) {
                   onChange={(e) => set("price", e.target.value)}
                   placeholder="1299"
                   className={inputCls(errors.price)}
+                />
+              </Field>
+
+              <Field
+                label="Original Price (₹)"
+                required
+                error={errors.originalPrice}
+              >
+                <input
+                  type="number"
+                  min="0"
+                  value={form.originalPrice}
+                  onChange={(e) => set("originalPrice", e.target.value)}
+                  placeholder="1999"
+                  className={inputCls(errors.originalPrice)}
                 />
               </Field>
 
@@ -280,6 +329,23 @@ export default function AddProduct({ onAdd, onCancel }) {
               </Field>
             </div>
 
+            {/* Live discount preview */}
+            {form.price &&
+              form.originalPrice &&
+              !isNaN(form.price) &&
+              !isNaN(form.originalPrice) &&
+              Number(form.originalPrice) > Number(form.price) && (
+                <div className="mt-4 inline-flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 text-[11px] font-medium px-3 py-1.5 rounded-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                  {Math.round(
+                    ((Number(form.originalPrice) - Number(form.price)) /
+                      Number(form.originalPrice)) *
+                      100,
+                  )}
+                  % discount
+                </div>
+              )}
+
             {/* Live stock status */}
             {form.stock !== "" && !isNaN(form.stock) && (
               <div
@@ -292,6 +358,7 @@ export default function AddProduct({ onAdd, onCancel }) {
                 }`}
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-current" />
+
                 {Number(form.stock) === 0
                   ? "Will be out of stock"
                   : Number(form.stock) <= 10
@@ -300,7 +367,6 @@ export default function AddProduct({ onAdd, onCancel }) {
               </div>
             )}
           </SectionCard>
-
           {/* ── Product Image ── */}
           <SectionCard title="Product Image">
             <div className="flex items-start gap-5">
@@ -394,6 +460,24 @@ export default function AddProduct({ onAdd, onCancel }) {
               value={form.bestDeal}
               onChange={(v) => set("bestDeal", v)}
             />
+
+            {form.bestDeal && (
+              <div className="pt-4">
+                <Field label="Deal Ends At" required error={errors.dealEndsAt}>
+                  <input
+                    type="datetime-local"
+                    value={form.dealEndsAt}
+                    onChange={(e) => set("dealEndsAt", e.target.value)}
+                    className={inputCls(errors.dealEndsAt)}
+                  />
+                </Field>
+
+                <p className="text-[11px] text-gray-400 mt-1.5">
+                  Best Deals will show a live countdown until this date and
+                  time.
+                </p>
+              </div>
+            )}
           </SectionCard>
 
           {/* ── Submit ── */}

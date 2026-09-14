@@ -582,8 +582,9 @@ export default function Products() {
       {editingProduct && (
         <EditProductModal
           product={editingProduct}
-          onClose={() => setEditingProduct(null)}
+          categories={categories}
           onSave={fetchProducts}
+          onClose={() => setEditingProduct(null)}
         />
       )}
     </div>

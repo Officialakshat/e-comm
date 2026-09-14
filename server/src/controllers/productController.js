@@ -6,17 +6,48 @@ import cloudinary from "../config/cloudinary.js";
 // ======================================================
 export async function createProduct(req, res) {
   try {
-    const { name, description, price, category, stock, brand, image } =
-      req.body;
-
-    const product = await Product.create({
+    const {
       name,
       description,
       price,
+      originalPrice,
       category,
       stock,
       brand,
       image,
+      featured,
+      newArrival,
+      bestDeal,
+      dealEndsAt,
+    } = req.body;
+
+    const sellingPrice = Number(price);
+    const oldPrice = Number(originalPrice);
+
+    let discountPercentage = 0;
+
+    if (oldPrice > sellingPrice) {
+      discountPercentage = Math.round(
+        ((oldPrice - sellingPrice) / oldPrice) * 100,
+      );
+    }
+
+    const product = await Product.create({
+      name,
+      description,
+      price: sellingPrice,
+      originalPrice: oldPrice,
+      discountPercentage,
+      category,
+      stock,
+      brand,
+      image,
+      featured: Boolean(featured),
+      newArrival: Boolean(newArrival),
+      bestDeal: Boolean(bestDeal),
+      dealEndsAt: bestDeal ? dealEndsAt : null,
+      rating: 0,
+      numReviews: 0,
       user: req.user._id,
     });
 
@@ -39,9 +70,8 @@ export async function createProduct(req, res) {
 // ======================================================
 export async function getProducts(req, res) {
   try {
-    const pageSize = Number(req.query.limit) || 5;
-
     const page = Number(req.query.page) || 1;
+    const pageSize = Number(req.query.limit) || 5;
 
     // ==================================================
     // SEARCH
@@ -260,7 +290,32 @@ export async function updateProduct(req, res) {
       });
     }
 
-    product = await Product.findByIdAndUpdate(req.params.id, req.body, {
+    const { price, originalPrice, bestDeal, dealEndsAt } = req.body;
+
+    const sellingPrice = price !== undefined ? Number(price) : product.price;
+
+    const oldPrice =
+      originalPrice !== undefined
+        ? Number(originalPrice)
+        : product.originalPrice;
+
+    let discountPercentage = 0;
+
+    if (oldPrice > sellingPrice) {
+      discountPercentage = Math.round(
+        ((oldPrice - sellingPrice) / oldPrice) * 100,
+      );
+    }
+
+    const updateData = {
+      ...req.body,
+      price: sellingPrice,
+      originalPrice: oldPrice,
+      discountPercentage,
+      dealEndsAt: bestDeal ? dealEndsAt : null,
+    };
+
+    product = await Product.findByIdAndUpdate(req.params.id, updateData, {
       new: true,
       runValidators: true,
     });
