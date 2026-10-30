@@ -4,6 +4,7 @@ import NewArrivals from "./NewArrivals";
 import BestDeals from "./BestDeals";
 import Brands from "./Brands";
 import FeaturedProducts from "./FeaturedProducts";
+import Categories from "./Category";
 
 function Home() {
   return (
@@ -11,8 +12,9 @@ function Home() {
       <Hero />
       <FeaturedProducts />
       <NewArrivals />
+      <Categories />
       {/* <BestDeals /> */}
-      <Brands />
+      {/* <Brands /> */}
     </>
   );
 }

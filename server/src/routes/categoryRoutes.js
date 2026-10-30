@@ -11,16 +11,12 @@ import { protect, admin } from "../middleware/authMiddleware.js";
 
 const router = Router();
 
-// GET ALL
-router.get("/", protect, admin, getCategories);
+// Public: customers and product forms can read categories
+router.get("/", getCategories);
 
-// CREATE
+// Admin only: manage categories
 router.post("/", protect, admin, createCategory);
-
-// UPDATE
 router.put("/:id", protect, admin, updateCategory);
-
-// DELETE
 router.delete("/:id", protect, admin, deleteCategory);
 
 export default router;

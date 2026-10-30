@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 const categorySchema = new Schema(
   {
@@ -8,30 +8,27 @@ const categorySchema = new Schema(
       unique: true,
       trim: true,
     },
-
-    icon: {
+    slug: {
       type: String,
       required: true,
+      unique: true,
       trim: true,
+      lowercase: true,
     },
-
     description: {
       type: String,
       default: "",
       trim: true,
     },
-
-    status: {
-      type: String,
-      enum: ["Active", "Inactive"],
-      default: "Active",
+    isActive: {
+      type: Boolean,
+      default: true,
     },
   },
-  {
-    timestamps: true,
-  },
+  { timestamps: true },
 );
 
-const Category = model.Category || model("Category", categorySchema);
+const Category =
+  mongoose.models.Category || mongoose.model("Category", categorySchema);
 
 export default Category;
