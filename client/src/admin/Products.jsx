@@ -1,22 +1,9 @@
 import { useEffect, useState } from "react";
 import { getProducts, deleteProduct } from "../services/products";
-
+import { getCategories } from "../services/categories";
 import { useNavigate } from "react-router-dom";
 import ProductsTable from "./components/ProductsTable";
 import EditProductModal from "./EditProducts";
-import { getCategories } from "../services/categories";
-
-const CATEGORIES = [
-  "Lighting",
-  "Electronics",
-  "Furniture",
-  "Decor",
-  "Kitchen",
-  "Plants",
-  "Fashion",
-  "Bedroom",
-  "Office",
-];
 
 export default function Products() {
   const navigate = useNavigate();
@@ -26,6 +13,13 @@ export default function Products() {
   // =========================
 
   const [products, setProducts] = useState([]);
+
+  // =========================
+  // CATEGORIES FROM MONGODB
+  // =========================
+
+  const [categories, setCategories] = useState([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
 
   // =========================
   // LOADING / ERROR
@@ -90,9 +84,9 @@ export default function Products() {
 
       const data = await getProducts(params);
 
-      setProducts(data.products);
-      setPages(data.pages);
-      setCount(data.count);
+      setProducts(data.products || []);
+      setPages(data.pages || 1);
+      setCount(data.count || 0);
     } catch (err) {
       console.error(err);
 
@@ -122,6 +116,29 @@ export default function Products() {
   ]);
 
   // =========================
+  // FETCH CATEGORIES FROM MONGODB
+  // =========================
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setCategoriesLoading(true);
+
+        const data = await getCategories();
+
+        // Backend returns only active categories
+        setCategories(data.categories || []);
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  // =========================
   // DELETE PRODUCT
   // =========================
 
@@ -141,24 +158,9 @@ export default function Products() {
     } catch (err) {
       console.error(err);
 
-      alert("Failed to delete product.");
+      alert(err.response?.data?.message || "Failed to delete product.");
     }
   };
-
-  const [categories, setCategories] = useState([]);
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const data = await getCategories();
-        setCategories(data.categories || []);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchCategories();
-  }, []);
 
   // =========================
   // CLEAR FILTERS
@@ -307,7 +309,7 @@ export default function Products() {
           </div>
 
           {/* =========================
-              CATEGORY
+              DYNAMIC CATEGORY FILTER
           ========================= */}
 
           <select
@@ -316,17 +318,18 @@ export default function Products() {
               setCategory(e.target.value);
               setPage(1);
             }}
-            className="border rounded-lg px-3 py-2 outline-none"
+            disabled={categoriesLoading}
+            className="bg-[#f8f5f1] border border-[#ede5da] rounded-xl px-3 py-2.5 text-[11px] text-gray-600 outline-none focus:border-[#C9B194] transition-colors disabled:opacity-60"
           >
-            <option value="">All Categories</option>
+            <option value="">
+              {categoriesLoading ? "Loading categories..." : "All Categories"}
+            </option>
 
-            {categories
-              .filter((cat) => cat.status === "Active")
-              .map((cat) => (
-                <option key={cat._id} value={cat.name}>
-                  {cat.name}
-                </option>
-              ))}
+            {categories.map((cat) => (
+              <option key={cat._id} value={cat.name}>
+                {cat.name}
+              </option>
+            ))}
           </select>
 
           {/* =========================

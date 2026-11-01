@@ -1,19 +1,7 @@
-// admin/AddProduct.jsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createProduct, uploadImage } from "../services/products";
+import { getCategories } from "../services/categories";
 import { useNavigate } from "react-router-dom";
-
-const CATEGORIES = [
-  "Lighting",
-  "Electronics",
-  "Furniture",
-  "Decor",
-  "Kitchen",
-  "Plants",
-  "Fashion",
-  "Bedroom",
-  "Office",
-];
 
 const EMPTY = {
   name: "",
@@ -56,13 +44,18 @@ function Toggle({ label, desc, value, onChange }) {
         <p className="text-[13px] font-medium text-gray-800">{label}</p>
         <p className="text-[11px] text-gray-400">{desc}</p>
       </div>
+
       <button
         type="button"
         onClick={() => onChange(!value)}
-        className={`relative w-11 h-6 rounded-full transition-colors duration-300 shrink-0 ${value ? "bg-[#C9B194]" : "bg-gray-200"}`}
+        className={`relative w-11 h-6 rounded-full transition-colors duration-300 shrink-0 ${
+          value ? "bg-[#C9B194]" : "bg-gray-200"
+        }`}
       >
         <span
-          className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-300 ${value ? "translate-x-5" : ""}`}
+          className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-300 ${
+            value ? "translate-x-5" : ""
+          }`}
         />
       </button>
     </div>
@@ -89,13 +82,44 @@ export default function AddProduct({ onAdd, onCancel }) {
   const [saved, setSaved] = useState(false);
   const [imageFile, setImageFile] = useState(null);
 
+  // Categories from MongoDB
+  const [categories, setCategories] = useState([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [categoriesError, setCategoriesError] = useState("");
+
+  const navigate = useNavigate();
+
+  // ── Fetch Categories ────────────────────────────────────
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setCategoriesLoading(true);
+        setCategoriesError("");
+
+        const data = await getCategories();
+
+        setCategories(data.categories || []);
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+
+        setCategoriesError(
+          error.response?.data?.message || "Failed to load categories.",
+        );
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  // ── Update Form ─────────────────────────────────────────
   const set = (key, val) => {
     setForm((f) => ({ ...f, [key]: val }));
     setErrors((e) => ({ ...e, [key]: "" }));
   };
 
-  const navigate = useNavigate();
-
+  // ── Handle Image ────────────────────────────────────────
   const handleImage = (e) => {
     const file = e.target.files[0];
 
@@ -105,19 +129,29 @@ export default function AddProduct({ onAdd, onCancel }) {
     setPreview(URL.createObjectURL(file));
   };
 
+  // ── Validate Form ───────────────────────────────────────
   const validate = () => {
     const e = {};
 
-    if (!form.name.trim()) e.name = "Product name is required";
+    if (!form.name.trim()) {
+      e.name = "Product name is required";
+    }
 
-    if (!form.description.trim()) e.description = "Description is required";
+    if (!form.description.trim()) {
+      e.description = "Description is required";
+    }
 
-    if (!form.brand.trim()) e.brand = "Brand name is required";
+    if (!form.brand.trim()) {
+      e.brand = "Brand name is required";
+    }
 
-    if (!form.category) e.category = "Select a category";
+    if (!form.category) {
+      e.category = "Select a category";
+    }
 
-    if (!form.price || isNaN(form.price) || Number(form.price) <= 0)
+    if (!form.price || isNaN(form.price) || Number(form.price) <= 0) {
       e.price = "Enter a valid price";
+    }
 
     if (
       !form.originalPrice ||
@@ -129,17 +163,20 @@ export default function AddProduct({ onAdd, onCancel }) {
       e.originalPrice = "Original price must be higher than selling price";
     }
 
-    if (form.stock === "" || isNaN(form.stock))
-      e.stock = "Stock quantity is required";
+    if (form.stock === "" || isNaN(form.stock) || Number(form.stock) < 0) {
+      e.stock = "Enter a valid stock quantity";
+    }
 
-    if (form.bestDeal && !form.dealEndsAt)
+    if (form.bestDeal && !form.dealEndsAt) {
       e.dealEndsAt = "Set an end date and time for the deal";
+    }
 
     setErrors(e);
 
     return Object.keys(e).length === 0;
   };
 
+  // ── Submit Product ──────────────────────────────────────
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -150,13 +187,9 @@ export default function AddProduct({ onAdd, onCancel }) {
 
       let imageUrl = "";
 
-      // Upload image
+      // Upload image to Cloudinary
       if (imageFile) {
-        console.log("Selected File:", imageFile);
-
         imageUrl = await uploadImage(imageFile);
-
-        console.log("Image URL:", imageUrl);
       }
 
       // Create product object
@@ -222,6 +255,7 @@ export default function AddProduct({ onAdd, onCancel }) {
           <p className="text-[11px] font-medium tracking-widest text-[#C9B194] uppercase mb-1">
             Admin · Products
           </p>
+
           <h1
             className="text-2xl font-bold text-gray-900"
             style={{ fontFamily: "Georgia,serif" }}
@@ -257,17 +291,36 @@ export default function AddProduct({ onAdd, onCancel }) {
                 />
               </Field>
 
+              {/* Dynamic Category Dropdown */}
               <Field label="Category" required error={errors.category}>
                 <select
                   value={form.category}
                   onChange={(e) => set("category", e.target.value)}
                   className={inputCls(errors.category)}
+                  disabled={categoriesLoading || categories.length === 0}
                 >
-                  <option value="">Select category…</option>
-                  {CATEGORIES.map((c) => (
-                    <option key={c}>{c}</option>
+                  <option value="">
+                    {categoriesLoading
+                      ? "Loading categories..."
+                      : categoriesError
+                        ? "Unable to load categories"
+                        : categories.length === 0
+                          ? "No active categories available"
+                          : "Select category..."}
+                  </option>
+
+                  {categories.map((category) => (
+                    <option key={category._id} value={category.name}>
+                      {category.name}
+                    </option>
                   ))}
                 </select>
+
+                {categoriesError && (
+                  <p className="text-[11px] text-red-500 mt-1">
+                    {categoriesError}
+                  </p>
+                )}
               </Field>
 
               <Field
@@ -279,7 +332,7 @@ export default function AddProduct({ onAdd, onCancel }) {
                 <textarea
                   value={form.description}
                   onChange={(e) => set("description", e.target.value)}
-                  placeholder="Short product description for the customer…"
+                  placeholder="Short product description for the customer..."
                   rows={3}
                   className={`${inputCls(errors.description)} resize-none`}
                 />
@@ -287,7 +340,6 @@ export default function AddProduct({ onAdd, onCancel }) {
             </div>
           </SectionCard>
 
-          {/* ── Pricing & Stock ── */}
           {/* ── Pricing & Stock ── */}
           <SectionCard title="Pricing & Stock">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -367,6 +419,7 @@ export default function AddProduct({ onAdd, onCancel }) {
               </div>
             )}
           </SectionCard>
+
           {/* ── Product Image ── */}
           <SectionCard title="Product Image">
             <div className="flex items-start gap-5">
@@ -395,10 +448,12 @@ export default function AddProduct({ onAdd, onCancel }) {
                       <circle cx="8.5" cy="8.5" r="1.5" />
                       <polyline points="21 15 16 10 5 21" />
                     </svg>
+
                     <span className="text-[10px] font-medium">No image</span>
                   </div>
                 )}
               </div>
+
               <div>
                 <label className="cursor-pointer inline-flex items-center gap-2 bg-[#1a1a1a] hover:bg-[#C9B194] text-white text-[12px] font-medium px-4 py-2.5 rounded-xl transition-colors">
                   <svg
@@ -421,9 +476,11 @@ export default function AddProduct({ onAdd, onCancel }) {
                     onChange={handleImage}
                   />
                 </label>
+
                 <p className="text-[11px] text-gray-400 mt-2">
                   PNG, JPG, WEBP — max 5 MB
                 </p>
+
                 {preview && (
                   <button
                     type="button"
@@ -448,12 +505,14 @@ export default function AddProduct({ onAdd, onCancel }) {
               value={form.featured}
               onChange={(v) => set("featured", v)}
             />
+
             <Toggle
               label="New arrival"
               desc="Appears in the New Arrivals section"
               value={form.newArrival}
               onChange={(v) => set("newArrival", v)}
             />
+
             <Toggle
               label="Best deal"
               desc="Appears in the Best Deals section with discount badge"
@@ -484,7 +543,7 @@ export default function AddProduct({ onAdd, onCancel }) {
           <div className="flex gap-3">
             <button
               type="submit"
-              disabled={saving || saved}
+              disabled={saving || saved || categoriesLoading}
               className={`flex-1 sm:flex-none sm:px-12 py-3 rounded-xl text-[13px] font-medium text-white transition-all duration-200 flex items-center justify-center gap-2 ${
                 saved
                   ? "bg-green-600"
@@ -494,6 +553,7 @@ export default function AddProduct({ onAdd, onCancel }) {
               }`}
             >
               {saved && "✓ Product Added!"}
+
               {saving && !saved && (
                 <>
                   <svg
@@ -507,11 +567,13 @@ export default function AddProduct({ onAdd, onCancel }) {
                   >
                     <path d="M21 12a9 9 0 1 1-6.219-8.56" />
                   </svg>
-                  Adding…
+                  Adding...
                 </>
               )}
+
               {!saving && !saved && "Add Product"}
             </button>
+
             {onCancel && (
               <button
                 type="button"
