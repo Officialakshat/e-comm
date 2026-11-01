@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+
 import {
   createCategory,
   deleteCategory,
-  getCategories,
+  getAdminCategories,
   updateCategory,
 } from "../services/categories";
 
@@ -26,8 +26,8 @@ export default function AdminCategories() {
   // TOAST
   // ===============================
 
-  const showToast = (msg) => {
-    setToast(msg);
+  const showToast = (message) => {
+    setToast(message);
 
     setTimeout(() => {
       setToast("");
@@ -43,7 +43,7 @@ export default function AdminCategories() {
       setLoading(true);
       setError("");
 
-      const data = await getCategories();
+      const data = await getAdminCategories();
 
       setCategories(data.categories || []);
     } catch (err) {
@@ -64,14 +64,18 @@ export default function AdminCategories() {
   }, []);
 
   // ===============================
-  // ADD
+  // ADD CATEGORY
   // ===============================
 
   const handleAdd = async (data) => {
     try {
       const response = await createCategory(data);
 
-      setCategories((prev) => [...prev, response.category]);
+      setCategories((prev) =>
+        [...prev, response.category].sort((a, b) =>
+          a.name.localeCompare(b.name),
+        ),
+      );
 
       showToast(`"${data.name}" category added`);
 
@@ -84,7 +88,7 @@ export default function AdminCategories() {
   };
 
   // ===============================
-  // EDIT
+  // EDIT CATEGORY
   // ===============================
 
   const handleEdit = async (data) => {
@@ -92,9 +96,11 @@ export default function AdminCategories() {
       const response = await updateCategory(editTarget._id, data);
 
       setCategories((prev) =>
-        prev.map((category) =>
-          category._id === editTarget._id ? response.category : category,
-        ),
+        prev
+          .map((category) =>
+            category._id === editTarget._id ? response.category : category,
+          )
+          .sort((a, b) => a.name.localeCompare(b.name)),
       );
 
       showToast(`"${data.name}" updated`);
@@ -108,7 +114,7 @@ export default function AdminCategories() {
   };
 
   // ===============================
-  // DELETE
+  // DELETE CATEGORY
   // ===============================
 
   const handleDelete = async () => {
@@ -130,15 +136,15 @@ export default function AdminCategories() {
   };
 
   // ===============================
-  // TOGGLE STATUS
+  // TOGGLE ACTIVE / INACTIVE
   // ===============================
 
   const toggleStatus = async (category) => {
     try {
-      const newStatus = category.status === "Active" ? "Inactive" : "Active";
+      const newStatus = !category.isActive;
 
       const response = await updateCategory(category._id, {
-        status: newStatus,
+        isActive: newStatus,
       });
 
       setCategories((prev) =>
@@ -147,7 +153,9 @@ export default function AdminCategories() {
         ),
       );
 
-      showToast(`"${category.name}" is now ${newStatus}`);
+      showToast(
+        `"${category.name}" is now ${newStatus ? "Active" : "Inactive"}`,
+      );
     } catch (err) {
       console.error("Toggle status error:", err);
 
@@ -160,28 +168,28 @@ export default function AdminCategories() {
   // ===============================
 
   const visible = categories.filter((category) => {
-    const matchSearch =
-      !search || category.name.toLowerCase().includes(search.toLowerCase());
+    const matchSearch = category.name
+      .toLowerCase()
+      .includes(search.toLowerCase());
 
-    const matchFilter = filter === "All" || category.status === filter;
+    const matchFilter =
+      filter === "All" ||
+      (filter === "Active" && category.isActive) ||
+      (filter === "Inactive" && !category.isActive);
 
     return matchSearch && matchFilter;
   });
 
   // ===============================
-  // STATS
+  // STATISTICS
   // ===============================
 
-  const totalProducts = categories.reduce(
-    (total, category) => total + (category.productCount || 0),
-    0,
-  );
-
-  const activeCount = categories.filter(
-    (category) => category.status === "Active",
-  ).length;
+  const activeCount = categories.filter((category) => category.isActive).length;
 
   const inactiveCount = categories.length - activeCount;
+
+  // Product count is not currently stored in the Category schema.
+  // We will connect actual product counts separately.
 
   // ===============================
   // LOADING
@@ -235,9 +243,7 @@ export default function AdminCategories() {
 
             <h1
               className="text-2xl font-bold text-gray-900"
-              style={{
-                fontFamily: "Georgia,serif",
-              }}
+              style={{ fontFamily: "Georgia,serif" }}
             >
               Categories
             </h1>
@@ -256,7 +262,6 @@ export default function AdminCategories() {
               strokeWidth="2.5"
             >
               <line x1="12" y1="5" x2="12" y2="19" />
-
               <line x1="5" y1="12" x2="19" y2="12" />
             </svg>
             Add Category
@@ -273,43 +278,40 @@ export default function AdminCategories() {
               icon: "📂",
               bg: "bg-[#fdf0e2]",
             },
-
             {
               label: "Active",
               value: activeCount,
               icon: "✅",
               bg: "bg-[#f0f9f4]",
             },
-
             {
               label: "Inactive",
               value: inactiveCount,
               icon: "⛔",
               bg: "bg-red-50",
             },
-
             {
-              label: "Total Products",
-              value: totalProducts,
+              label: "Product Counts",
+              value: "—",
               icon: "🏷️",
               bg: "bg-[#eff6ff]",
             },
-          ].map((s) => (
+          ].map((stat) => (
             <div
-              key={s.label}
+              key={stat.label}
               className="bg-white rounded-2xl border border-[#ede5da] p-4 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
             >
               <div
-                className={`w-10 h-10 ${s.bg} rounded-xl flex items-center justify-center text-xl mb-3`}
+                className={`w-10 h-10 ${stat.bg} rounded-xl flex items-center justify-center text-xl mb-3`}
               >
-                {s.icon}
+                {stat.icon}
               </div>
 
               <p className="text-[22px] font-bold text-gray-900 leading-none">
-                {s.value}
+                {stat.value}
               </p>
 
-              <p className="text-[11px] text-gray-500 mt-1">{s.label}</p>
+              <p className="text-[11px] text-gray-500 mt-1">{stat.label}</p>
             </div>
           ))}
         </div>
@@ -328,14 +330,13 @@ export default function AdminCategories() {
               strokeWidth="2"
             >
               <circle cx="11" cy="11" r="8" />
-
               <path d="m21 21-4.35-4.35" />
             </svg>
 
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search categories…"
+              placeholder="Search categories..."
               className="flex-1 bg-transparent outline-none border-none px-3 py-2.5 text-[13px] placeholder-[#b0a090]"
             />
 
@@ -398,14 +399,14 @@ export default function AdminCategories() {
               <div
                 key={cat._id}
                 className={`group bg-white rounded-2xl border hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden ${
-                  cat.status === "Active"
+                  cat.isActive
                     ? "border-[#ede5da]"
                     : "border-dashed border-gray-300 opacity-70"
                 }`}
               >
                 {/* STRIP */}
 
-                <div className="h-1.5 bg-linear-to-r from-[#C9B194] to-[#e8d5bb]" />
+                <div className="h-1.5 bg-gradient-to-r from-[#C9B194] to-[#e8d5bb]" />
 
                 <div className="p-4">
                   {/* ICON + NAME + STATUS */}
@@ -413,7 +414,7 @@ export default function AdminCategories() {
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 bg-[#fdf0e2] rounded-2xl flex items-center justify-center text-2xl shrink-0">
-                        {cat.icon}
+                        📂
                       </div>
 
                       <div>
@@ -422,7 +423,7 @@ export default function AdminCategories() {
                         </h3>
 
                         <p className="text-[11px] text-gray-400">
-                          {cat.productCount || 0} products
+                          Slug: {cat.slug}
                         </p>
                       </div>
                     </div>
@@ -432,42 +433,20 @@ export default function AdminCategories() {
                     <button
                       onClick={() => toggleStatus(cat)}
                       className={`text-[9px] font-semibold px-2.5 py-1 rounded-full border transition-all ${
-                        cat.status === "Active"
+                        cat.isActive
                           ? "bg-green-50 text-green-700 border-green-200 hover:bg-green-100"
                           : "bg-red-50 text-red-600 border-red-200 hover:bg-red-100"
                       }`}
                     >
-                      {cat.status}
+                      {cat.isActive ? "Active" : "Inactive"}
                     </button>
                   </div>
 
                   {/* DESCRIPTION */}
 
-                  <p className="text-[12px] text-gray-500 leading-relaxed mb-4 line-clamp-2 min-h-10">
+                  <p className="text-[12px] text-gray-500 leading-relaxed mb-5 line-clamp-2 min-h-10">
                     {cat.description || "No description added."}
                   </p>
-
-                  {/* PRODUCT PROGRESS */}
-
-                  <div className="mb-4">
-                    <div className="flex justify-between text-[10px] text-gray-400 mb-1">
-                      <span>Products</span>
-
-                      <span>{cat.productCount || 0}</span>
-                    </div>
-
-                    <div className="h-1.5 bg-[#f5ede0] rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-[#C9B194] rounded-full transition-all duration-500"
-                        style={{
-                          width: `${Math.min(
-                            ((cat.productCount || 0) / 50) * 100,
-                            100,
-                          )}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
 
                   {/* ACTIONS */}
 
@@ -501,7 +480,7 @@ export default function AdminCategories() {
         )}
       </div>
 
-      {/* ADD */}
+      {/* ADD MODAL */}
 
       {showForm && (
         <CategoryFormModal
@@ -511,7 +490,7 @@ export default function AdminCategories() {
         />
       )}
 
-      {/* EDIT */}
+      {/* EDIT MODAL */}
 
       {editTarget && (
         <CategoryFormModal
@@ -521,7 +500,7 @@ export default function AdminCategories() {
         />
       )}
 
-      {/* DELETE */}
+      {/* DELETE MODAL */}
 
       {delTarget && (
         <DeleteModal
@@ -538,6 +517,184 @@ export default function AdminCategories() {
           ✓ {toast}
         </div>
       )}
+    </div>
+  );
+}
+
+// =====================================
+// CATEGORY FORM MODAL
+// ADD + EDIT
+// =====================================
+
+function CategoryFormModal({ initial, onSave, onClose }) {
+  const [name, setName] = useState(initial?.name || "");
+
+  const [description, setDescription] = useState(initial?.description || "");
+
+  const [isActive, setIsActive] = useState(initial?.isActive ?? true);
+
+  const [saving, setSaving] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!name.trim()) {
+      alert("Please enter category name");
+      return;
+    }
+
+    try {
+      setSaving(true);
+
+      await onSave({
+        name: name.trim(),
+        description: description.trim(),
+        isActive,
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+      <div className="bg-white w-full max-w-md rounded-2xl p-6 shadow-xl">
+        <div className="flex justify-between items-center mb-5">
+          <h2 className="text-lg font-semibold text-gray-900">
+            {initial ? "Edit Category" : "Add Category"}
+          </h2>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-800 text-2xl"
+          >
+            ×
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* CATEGORY NAME */}
+
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-2">
+              Category Name
+            </label>
+
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter category name"
+              className="w-full border border-[#ede5da] rounded-xl px-4 py-3 text-sm outline-none focus:border-[#C9B194]"
+              required
+            />
+          </div>
+
+          {/* DESCRIPTION */}
+
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-2">
+              Description
+            </label>
+
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Enter category description"
+              rows="3"
+              className="w-full border border-[#ede5da] rounded-xl px-4 py-3 text-sm outline-none focus:border-[#C9B194] resize-none"
+            />
+          </div>
+
+          {/* CATEGORY STATUS */}
+
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-2">
+              Category Status
+            </label>
+
+            <select
+              value={isActive ? "Active" : "Inactive"}
+              onChange={(e) => setIsActive(e.target.value === "Active")}
+              className="w-full border border-[#ede5da] rounded-xl px-4 py-3 text-sm outline-none focus:border-[#C9B194] bg-white"
+            >
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+
+            <p className="text-[11px] text-gray-400 mt-2">
+              Inactive categories will not be displayed to customers.
+            </p>
+          </div>
+
+          {/* BUTTONS */}
+
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={saving}
+              className="flex-1 border border-[#ede5da] rounded-xl py-3 text-sm text-gray-600"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              disabled={saving}
+              className="flex-1 bg-[#1a1a1a] hover:bg-[#C9B194] text-white rounded-xl py-3 text-sm disabled:opacity-50"
+            >
+              {saving
+                ? "Saving..."
+                : initial
+                  ? "Update Category"
+                  : "Add Category"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// =====================================
+// DELETE CONFIRMATION MODAL
+// =====================================
+
+function DeleteModal({ category, onConfirm, onCancel }) {
+  return (
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+      <div className="bg-white w-full max-w-sm rounded-2xl p-6 shadow-xl">
+        <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-2xl mb-4">
+          🗑️
+        </div>
+
+        <h2 className="text-lg font-semibold text-gray-900 mb-2">
+          Delete Category?
+        </h2>
+
+        <p className="text-sm text-gray-500 mb-6">
+          Are you sure you want to delete "{category.name}"? This action cannot
+          be undone.
+        </p>
+
+        <div className="flex gap-3">
+          <button
+            onClick={onCancel}
+            className="flex-1 border border-[#ede5da] rounded-xl py-3 text-sm text-gray-600"
+          >
+            Cancel
+          </button>
+
+          <button
+            onClick={onConfirm}
+            className="flex-1 bg-red-600 hover:bg-red-700 text-white rounded-xl py-3 text-sm"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

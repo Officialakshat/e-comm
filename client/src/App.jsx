@@ -18,7 +18,7 @@ import Conditions from "./pages/Conditions";
 import MyOrders from "./pages/MyOrder";
 import AdminLayout from "./layout/AdminLayout";
 import Dashboard from "./admin/Dashboard";
-import Products from "./admin/Products";
+// import Products from "./admin/Products";
 // import AdminOrdersPanel from "./admin/OrdersBarChart";
 import Users from "./admin/Users";
 import TopProducts from "./admin/TopProducts";
@@ -27,6 +27,8 @@ import AddProduct from "./admin/AddProducts";
 import EditProducts from "./admin/EditProducts";
 import DeleteProduct from "./admin/DeleteProducts";
 import Order from "./admin/Order";
+
+import ProductListing from "./pages/ProductListing";
 
 function App() {
   return (
@@ -50,13 +52,14 @@ function App() {
           <Route path="privacy" element={<Privacy />} />
           <Route path="help" element={<Help />} />
           <Route path="conditions" element={<Conditions />} />
+          <Route path="productListing" element={<ProductListing />} />
         </Route>
 
         {/* admin layout */}
 
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Dashboard />} />
-          <Route path="products" element={<Products />} />
+          {/* <Route path="products" element={<Products />} /> */}
           <Route path="orders" element={<Order />} />
           <Route path="users" element={<Users />} />
           <Route path="products/editProduct/:id" element={<EditProducts />} />

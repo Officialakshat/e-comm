@@ -136,6 +136,12 @@ export async function getProducts(req, res) {
       };
     }
 
+    const brand = req.query.brand
+      ? {
+          brand: req.query.brand,
+        }
+      : {};
+
     // ==================================================
     // FEATURED FILTER
     // ==================================================
@@ -207,6 +213,7 @@ export async function getProducts(req, res) {
     const query = {
       ...keyword,
       ...category,
+      ...brand,
       ...stockFilter,
       price,
       ...featured,

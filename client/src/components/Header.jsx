@@ -4,8 +4,35 @@ import CartDrawer from "../pages/cartDrawer";
 import useCart from "../Hooks/useCart";
 import { useAuth } from "../context/AuthContext";
 import { Profile } from "../pages/Profile";
+import { getCategories } from "../services/categories";
 
 // ─── PROFILE DROPDOWN COMPONENT ───
+
+const categoryIcons = {
+  furniture: "🛋️",
+  lighting: "💡",
+  electronics: "🎧",
+  fashion: "👗",
+  plants: "🌿",
+  kitchen: "🍳",
+  bedroom: "🛏️",
+  office: "💻",
+  decor: "🏺",
+  "home decor": "🏡",
+  "home decoration": "🏡",
+  beauty: "💄",
+  mobiles: "📱",
+  books: "📚",
+  toys: "🧸",
+  appliances: "🔌",
+  "sports & fitness": "🏋️",
+  "nursery & kids": "🧸",
+  bathroom: "🛁",
+};
+
+const getCategoryIcon = (name) => {
+  return categoryIcons[name?.toLowerCase()] || "🛍️";
+};
 
 // ─── MAIN NAVBAR COMPONENT ───
 export default function Navbar() {
@@ -15,6 +42,7 @@ export default function Navbar() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [categories, setCategories] = useState([]);
 
   const mobileSearchRef = useRef(null);
   const profileContainerRef = useRef(null);
@@ -40,6 +68,19 @@ export default function Navbar() {
     setSearchOpen(false);
     setProfileOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await getCategories();
+        setCategories(data.categories || []);
+      } catch (error) {
+        console.error("Failed to load navbar categories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   // Shrink nav on scroll
   useEffect(() => {
@@ -448,22 +489,57 @@ export default function Navbar() {
         </div>
 
         {/* ── DESKTOP BOTTOM NAV LINKS ── */}
-        <div className="hidden lg:flex items-center gap-7 px-12 pb-3 border-t border-[#f5ede0]">
-          {navLinks.map((link) => {
-            const active = isActive(link.path);
-            return (
-              <Link
-                key={link.name}
-                to={link.path}
-                className={`relative py-1 text-[13.5px] transition-colors group ${active ? "text-gray-900 font-medium" : "text-gray-500 hover:text-gray-900"}`}
-              >
-                {link.name}
-                <span
-                  className={`absolute left-0 bottom-0 h-[1.5px] bg-[#C9B194] transition-all ${active ? "w-full" : "w-0 group-hover:w-full"}`}
-                />
-              </Link>
-            );
-          })}
+        {/* ── CATEGORY ICON NAVIGATION ── */}
+        <div className="border-t border-[#f5ede0] bg-white">
+          <div className="mx-auto flex max-w-7xl items-start gap-7 overflow-x-auto px-5 py-3 sm:px-8 lg:px-12 scrollbar-hide">
+            {categories.map((category) => {
+              const isActive =
+                pathname === "/ProductListing" &&
+                new URLSearchParams(window.location.search).get("category") ===
+                  category.name;
+
+              return (
+                <button
+                  key={category._id}
+                  onClick={() =>
+                    navigate(
+                      `/ProductListing?category=${encodeURIComponent(category.name)}`,
+                    )
+                  }
+                  className="group flex min-w-19 shrink-0 flex-col items-center gap-1.5"
+                >
+                  {/* Category Icon */}
+                  <div
+                    className={`flex h-12 w-12 items-center justify-center rounded-xl text-2xl transition-all duration-200 ${
+                      isActive
+                        ? "bg-[#f5e9d8] ring-1 ring-[#C9B194]"
+                        : "bg-white group-hover:bg-[#fdf5ec] group-hover:-translate-y-1"
+                    }`}
+                  >
+                    {getCategoryIcon(category.name)}
+                  </div>
+
+                  {/* Category Name */}
+                  <span
+                    className={`max-w-22.5 truncate text-center text-xs transition-colors ${
+                      isActive
+                        ? "font-semibold text-[#9a7f5e]"
+                        : "font-medium text-gray-700 group-hover:text-[#9a7f5e]"
+                    }`}
+                  >
+                    {category.name}
+                  </span>
+
+                  {/* Active Indicator */}
+                  <span
+                    className={`h-0.5 w-8 rounded-full transition-all ${
+                      isActive ? "bg-[#C9B194]" : "bg-transparent"
+                    }`}
+                  />
+                </button>
+              );
+            })}
+          </div>
         </div>
       </nav>
 

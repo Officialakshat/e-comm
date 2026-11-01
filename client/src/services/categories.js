@@ -5,6 +5,10 @@ export async function getCategories() {
   const { data } = await api.get("/categories");
   return data;
 }
+export async function getAdminCategories() {
+  const { data } = await api.get("/categories/admin");
+  return data;
+}
 
 // Create category
 export async function createCategory(categoryData) {

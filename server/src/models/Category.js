@@ -8,6 +8,7 @@ const categorySchema = new Schema(
       unique: true,
       trim: true,
     },
+
     slug: {
       type: String,
       required: true,
@@ -15,17 +16,21 @@ const categorySchema = new Schema(
       trim: true,
       lowercase: true,
     },
+
     description: {
       type: String,
       default: "",
       trim: true,
     },
+
     isActive: {
       type: Boolean,
       default: true,
     },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+  },
 );
 
 const Category =

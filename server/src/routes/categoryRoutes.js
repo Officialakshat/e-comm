@@ -2,6 +2,7 @@ import { Router } from "express";
 
 import {
   getCategories,
+  getAdminCategories,
   createCategory,
   updateCategory,
   deleteCategory,
@@ -11,8 +12,11 @@ import { protect, admin } from "../middleware/authMiddleware.js";
 
 const router = Router();
 
-// Public: customers and product forms can read categories
+// Public: customers can read active categories
 router.get("/", getCategories);
+
+// Admin only: read all categories, including inactive ones
+router.get("/admin", protect, admin, getAdminCategories);
 
 // Admin only: manage categories
 router.post("/", protect, admin, createCategory);
