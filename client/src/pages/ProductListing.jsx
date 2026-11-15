@@ -19,6 +19,7 @@ export default function ProductListing() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const categoryFromUrl = searchParams.get("category") || "";
+  const searchTerm = searchParams.get("search") || "";
   const [selectedCategory, setSelectedCategory] = useState(categoryFromUrl);
 
   const [selectedBrand, setSelectedBrand] = useState("");
@@ -69,6 +70,8 @@ export default function ProductListing() {
   }, [categoryFromUrl]);
 
   // Fetch products whenever a filter or page changes
+
+  // Fetch products whenever a filter or page changes
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -82,29 +85,23 @@ export default function ProductListing() {
           maxPrice: appliedMaxPrice,
         };
 
-        if (selectedCategory) {
-          params.category = selectedCategory;
-        }
-
-        if (selectedBrand) {
-          params.brand = selectedBrand;
-        }
-
-        if (sort) {
-          params.sort = sort;
-        }
+        if (selectedCategory) params.category = selectedCategory;
+        if (selectedBrand) params.brand = selectedBrand;
+        if (searchTerm) params.keyword = searchTerm;
+        if (sort) params.sort = sort;
+        console.log("Shop request filters:", JSON.stringify(params, null, 2));
 
         const data = await getProducts(params);
+
+        console.log("Products received:", data.products);
 
         setProducts(data.products || []);
         setTotalProducts(data.count || 0);
         setPages(data.pages || 1);
-      } catch (err) {
-        console.error("Products loading error:", err);
-        setError(
-          err.response?.data?.message ||
-            "Unable to load products. Please try again.",
-        );
+      } catch (error) {
+        console.error("Shop products error:", error);
+        setError("Unable to load products. Please try again.");
+        setProducts([]);
       } finally {
         setLoading(false);
       }
@@ -115,9 +112,10 @@ export default function ProductListing() {
     page,
     selectedCategory,
     selectedBrand,
+    sort,
     appliedMinPrice,
     appliedMaxPrice,
-    sort,
+    searchTerm,
   ]);
 
   const applyPriceFilter = (e) => {
@@ -150,17 +148,21 @@ export default function ProductListing() {
     setAppliedMaxPrice("100000");
     setSort("");
     setPage(1);
+    setSearchParams({});
   };
 
   const changeCategory = (category) => {
     setSelectedCategory(category);
 
+    const nextParams = new URLSearchParams(searchParams);
+
     if (category) {
-      setSearchParams({ category });
+      nextParams.set("category", category);
     } else {
-      setSearchParams({});
+      nextParams.delete("category");
     }
 
+    setSearchParams(nextParams);
     setPage(1);
   };
 
@@ -349,7 +351,7 @@ export default function ProductListing() {
             </div>
 
             {/* Active filter labels */}
-            {(selectedCategory || selectedBrand) && (
+            {(selectedCategory || selectedBrand || searchTerm) && (
               <div className="mb-5 flex flex-wrap items-center gap-2">
                 {selectedCategory && (
                   <span className="rounded-full bg-[#f2e9dd] px-3 py-1.5 text-xs text-[#80684f]">
@@ -360,6 +362,11 @@ export default function ProductListing() {
                 {selectedBrand && (
                   <span className="rounded-full bg-[#f2e9dd] px-3 py-1.5 text-xs text-[#80684f]">
                     Brand: {selectedBrand}
+                  </span>
+                )}
+                {searchTerm && (
+                  <span className="rounded-full bg-[#f2e9dd] px-3 py-1.5 text-xs text-[#80684f]">
+                    Search: {searchTerm}
                   </span>
                 )}
               </div>

@@ -76,12 +76,20 @@ export async function getProducts(req, res) {
     // ==================================================
     // SEARCH
     // ==================================================
-    const keyword = req.query.keyword
+
+    const keyword = req.query.keyword?.trim();
+
+    const escapedKeyword = keyword
+      ? keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+      : "";
+
+    const searchFilter = keyword
       ? {
-          name: {
-            $regex: req.query.keyword,
-            $options: "i",
-          },
+          $or: [
+            { name: { $regex: escapedKeyword, $options: "i" } },
+            { brand: { $regex: escapedKeyword, $options: "i" } },
+            { description: { $regex: escapedKeyword, $options: "i" } },
+          ],
         }
       : {};
 
@@ -220,6 +228,7 @@ export async function getProducts(req, res) {
       ...newArrival,
       ...bestDeal,
       ...stock,
+      ...searchFilter,
     };
 
     // ==================================================

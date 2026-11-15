@@ -1,5 +1,3 @@
-import "./Hero.css";
-
 export default function Hero() {
   return (
     <section className="relative min-h-[calc(100vh-80px)] flex items-center overflow-hidden bg-linear-to-br from-[#fdf9f5] via-[#f5ede0] to-[#ede0cc] px-5 sm:px-8 lg:px-12 py-14 sm:py-16 lg:py-20">
@@ -14,7 +12,7 @@ export default function Hero() {
           {/* Tag pill */}
           <div className="inline-flex items-center gap-2 bg-white border border-[#e8ddd0] rounded-full px-4 py-2 text-[11px] font-medium text-[#9a7f5e] uppercase tracking-widest mb-7 animate-[fadeUp_0.6s_ease_both]">
             <span className="w-1.75 h-1.75 rounded-full bg-[#C9B194] animate-[pulseDot_2s_ease-in-out_infinite]" />
-            New Season Collection 2025
+            New Season Collection 2026
           </div>
 
           {/* Heading text */}

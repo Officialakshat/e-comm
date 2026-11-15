@@ -27,7 +27,6 @@ import AddProduct from "./admin/AddProducts";
 import EditProducts from "./admin/EditProducts";
 import DeleteProduct from "./admin/DeleteProducts";
 import Order from "./admin/Order";
-
 import ProductListing from "./pages/ProductListing";
 
 function App() {
@@ -53,6 +52,7 @@ function App() {
           <Route path="help" element={<Help />} />
           <Route path="conditions" element={<Conditions />} />
           <Route path="productListing" element={<ProductListing />} />
+          <Route path="productsListing" element={<ProductListing />} />
         </Route>
 
         {/* admin layout */}

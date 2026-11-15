@@ -9,7 +9,7 @@ import { getCategories } from "../services/categories";
 // ─── PROFILE DROPDOWN COMPONENT ───
 
 const categoryIcons = {
-  furniture: "🛋️",
+  Furniture: "🛋️",
   lighting: "💡",
   electronics: "🎧",
   fashion: "👗",
@@ -49,7 +49,7 @@ export default function Navbar() {
 
   const cartCount = useCart();
   const navigate = useNavigate();
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const { user, loading } = useAuth();
 
   const navLinks = [
@@ -112,8 +112,12 @@ export default function Navbar() {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+
+    const query = searchQuery.trim();
+
+    if (query) {
+      navigate(`/productsListing?search=${encodeURIComponent(query)}`);
+
       setSearchQuery("");
       setSearchOpen(false);
     }
@@ -490,25 +494,65 @@ export default function Navbar() {
 
         {/* ── DESKTOP BOTTOM NAV LINKS ── */}
         {/* ── CATEGORY ICON NAVIGATION ── */}
+
+        {/* ── CATEGORY ICON NAVIGATION ── */}
         <div className="border-t border-[#f5ede0] bg-white">
-          <div className="mx-auto flex max-w-7xl items-start gap-7 overflow-x-auto px-5 py-3 sm:px-8 lg:px-12 scrollbar-hide">
+          <div className="mx-auto flex max-w-7xl items-start gap-7 overflow-x-auto px-5 py-3 sm:px-8 lg:px-12 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {/* ALL PRODUCTS */}
+            <button
+              type="button"
+              onClick={() => navigate("/productsListing")}
+              className="group flex min-w-19 shrink-0 flex-col items-center gap-1.5"
+            >
+              <div
+                className={`flex h-12 w-12 items-center justify-center rounded-xl text-2xl transition-all duration-200 ${
+                  pathname === "/productsListing" &&
+                  !new URLSearchParams(search).get("category")
+                    ? "bg-[#f5e9d8] ring-1 ring-[#C9B194]"
+                    : "bg-white group-hover:bg-[#fdf5ec] group-hover:-translate-y-1"
+                }`}
+              >
+                🛍️
+              </div>
+
+              <span
+                className={`max-w-22.5 truncate text-center text-xs transition-colors ${
+                  pathname === "/productsListing" &&
+                  !new URLSearchParams(search).get("category")
+                    ? "font-semibold text-[#9a7f5e]"
+                    : "font-medium text-gray-700 group-hover:text-[#9a7f5e]"
+                }`}
+              >
+                All Products
+              </span>
+
+              <span
+                className={`h-0.5 w-8 rounded-full ${
+                  pathname === "/productsListing" &&
+                  !new URLSearchParams(search).get("category")
+                    ? "bg-[#C9B194]"
+                    : "bg-transparent"
+                }`}
+              />
+            </button>
+
+            {/* DYNAMIC CATEGORIES */}
             {categories.map((category) => {
               const isActive =
-                pathname === "/ProductListing" &&
-                new URLSearchParams(window.location.search).get("category") ===
-                  category.name;
+                pathname === "/productsListing" &&
+                new URLSearchParams(search).get("category") === category.name;
 
               return (
                 <button
                   key={category._id}
+                  type="button"
                   onClick={() =>
                     navigate(
-                      `/ProductListing?category=${encodeURIComponent(category.name)}`,
+                      `/productsListing?category=${encodeURIComponent(category.name)}`,
                     )
                   }
                   className="group flex min-w-19 shrink-0 flex-col items-center gap-1.5"
                 >
-                  {/* Category Icon */}
                   <div
                     className={`flex h-12 w-12 items-center justify-center rounded-xl text-2xl transition-all duration-200 ${
                       isActive
@@ -519,7 +563,6 @@ export default function Navbar() {
                     {getCategoryIcon(category.name)}
                   </div>
 
-                  {/* Category Name */}
                   <span
                     className={`max-w-22.5 truncate text-center text-xs transition-colors ${
                       isActive
@@ -530,7 +573,6 @@ export default function Navbar() {
                     {category.name}
                   </span>
 
-                  {/* Active Indicator */}
                   <span
                     className={`h-0.5 w-8 rounded-full transition-all ${
                       isActive ? "bg-[#C9B194]" : "bg-transparent"
