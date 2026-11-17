@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { getProductById } from "../services/products";
+import { useCartContext } from "../context/CartContext";
 
 const formatPrice = (price) =>
   new Intl.NumberFormat("en-IN", {
@@ -11,17 +12,24 @@ const formatPrice = (price) =>
 
 export default function ProductDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
+
+  const { addToCart } = useCartContext();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const [addedMessage, setAddedMessage] = useState("");
 
+  // Fetch single product
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
         setError("");
+        setAddedMessage("");
+        setQuantity(1);
 
         const data = await getProductById(id);
 
@@ -32,6 +40,7 @@ export default function ProductDetails() {
         setError(
           err.response?.data?.message || "Unable to load product details.",
         );
+        setProduct(null);
       } finally {
         setLoading(false);
       }
@@ -40,6 +49,25 @@ export default function ProductDetails() {
     fetchProduct();
   }, [id]);
 
+  // Add to Cart
+  const handleAddToCart = () => {
+    if (!product || product.stock <= 0) return;
+
+    addToCart(product, quantity);
+
+    setAddedMessage(`${quantity} item(s) added to your cart!`);
+  };
+
+  // Buy Now
+  const handleBuyNow = () => {
+    if (!product || product.stock <= 0) return;
+
+    addToCart(product, quantity);
+
+    navigate("/checkout");
+  };
+
+  // Loading
   if (loading) {
     return (
       <div className="min-h-screen bg-[#fdf9f5] flex items-center justify-center">
@@ -48,6 +76,7 @@ export default function ProductDetails() {
     );
   }
 
+  // Error or product not found
   if (error || !product) {
     return (
       <div className="min-h-screen bg-[#fdf9f5] flex flex-col items-center justify-center px-4">
@@ -79,11 +108,15 @@ export default function ProductDetails() {
           <Link to="/" className="hover:text-[#9a7f5e]">
             Home
           </Link>
+
           <span className="mx-2">/</span>
+
           <Link to="/productsListing" className="hover:text-[#9a7f5e]">
             Products
           </Link>
+
           <span className="mx-2">/</span>
+
           <span className="text-gray-800">{product.name}</span>
         </div>
 
@@ -123,6 +156,7 @@ export default function ProductDetails() {
               {product.name}
             </h1>
 
+            {/* Brand */}
             {product.brand && (
               <p className="mt-3 text-sm text-gray-500">
                 Brand:{" "}
@@ -136,6 +170,7 @@ export default function ProductDetails() {
             {product.rating > 0 && (
               <div className="mt-4 flex items-center gap-2">
                 <span className="text-[#C9B194]">★ {product.rating}</span>
+
                 <span className="text-xs text-gray-400">
                   ({product.numReviews || 0} reviews)
                 </span>
@@ -155,6 +190,7 @@ export default function ProductDetails() {
               )}
             </div>
 
+            {/* Discount */}
             {discount > 0 && (
               <p className="mt-2 text-sm font-medium text-green-600">
                 You save {formatPrice(product.originalPrice - product.price)}
@@ -187,7 +223,7 @@ export default function ProductDetails() {
               )}
             </div>
 
-            {/* Quantity */}
+            {/* Quantity Selector */}
             {product.stock > 0 && (
               <div className="mt-6">
                 <p className="mb-2 text-sm font-medium text-gray-800">
@@ -224,9 +260,10 @@ export default function ProductDetails() {
               </div>
             )}
 
-            {/* Cart buttons will be connected in the next step */}
+            {/* Cart Buttons */}
             <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
               <button
+                onClick={handleAddToCart}
                 disabled={product.stock <= 0}
                 className="rounded-xl bg-[#1a1a1a] px-5 py-3 text-sm font-medium text-white transition hover:bg-[#C9B194] disabled:cursor-not-allowed disabled:bg-gray-400"
               >
@@ -234,12 +271,20 @@ export default function ProductDetails() {
               </button>
 
               <button
+                onClick={handleBuyNow}
                 disabled={product.stock <= 0}
                 className="rounded-xl border border-[#C9B194] px-5 py-3 text-sm font-medium text-[#80684f] transition hover:bg-[#f7f1e9] disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Buy Now
               </button>
             </div>
+
+            {/* Success Message */}
+            {addedMessage && (
+              <p className="mt-3 text-sm font-medium text-green-600">
+                ✓ {addedMessage}
+              </p>
+            )}
           </div>
         </div>
       </div>

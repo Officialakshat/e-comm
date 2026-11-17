@@ -18,11 +18,11 @@ router.post("/", protect, createOrder);
 // GET MY ORDERS
 router.get("/myorders", protect, getMyOrders);
 
-// GET SINGLE ORDER
-router.get("/:id", protect, getOrderById);
-
 // ADMIN GET ALL ORDERS
 router.get("/", protect, admin, getOrders);
+
+// GET SINGLE ORDER
+router.get("/:id", protect, getOrderById);
 
 // ADMIN UPDATE STATUS
 router.put("/:id", protect, admin, updateOrderStatus);

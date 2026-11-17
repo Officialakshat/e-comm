@@ -1,4 +1,6 @@
+import mongoose from "mongoose";
 import Order from "../models/Order.js";
+import Product from "../models/product.js";
 
 export async function createOrder(req, res) {
   try {
