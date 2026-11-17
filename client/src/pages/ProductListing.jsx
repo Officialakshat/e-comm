@@ -2,15 +2,16 @@ import { useEffect, useState } from "react";
 import { getProducts } from "../services/products";
 import { getCategories } from "../services/categories";
 import { useSearchParams } from "react-router-dom";
+import ProductCard from "./ProductCard";
 
 const PRODUCTS_PER_PAGE = 12;
 
-const formatPrice = (price) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(price || 0);
+// const formatPrice = (price) =>
+//   new Intl.NumberFormat("en-IN", {
+//     style: "currency",
+//     currency: "INR",
+//     maximumFractionDigits: 0,
+//   }).format(price || 0);
 
 export default function ProductListing() {
   const [products, setProducts] = useState([]);
@@ -390,67 +391,7 @@ export default function ProductListing() {
             {!loading && !error && products.length > 0 && (
               <div className="grid grid-cols-1 gap-x-5 gap-y-8 sm:grid-cols-2 xl:grid-cols-3">
                 {products.map((product) => (
-                  <article
-                    key={product._id}
-                    className="group overflow-hidden rounded-xl border border-[#ede5da] bg-white transition duration-300 hover:-translate-y-1 hover:shadow-lg"
-                  >
-                    <div className="relative flex aspect-square items-center justify-center overflow-hidden bg-[#f7f5f2]">
-                      {product.image ? (
-                        <img
-                          src={product.image}
-                          alt={product.name}
-                          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                        />
-                      ) : (
-                        <div className="text-sm text-gray-400">
-                          No image available
-                        </div>
-                      )}
-
-                      {product.discountPercentage > 0 && (
-                        <span className="absolute left-3 top-3 rounded-md bg-[#d9eee5] px-2 py-1 text-xs font-semibold text-[#32775d]">
-                          -{product.discountPercentage}%
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="p-4">
-                      <p className="mb-1 text-xs text-[#9a7f5e]">
-                        {product.brand}
-                      </p>
-
-                      <h3 className="line-clamp-1 text-sm font-semibold text-gray-900">
-                        {product.name}
-                      </h3>
-
-                      <div className="mt-2 flex flex-wrap items-center gap-2">
-                        <span className="text-base font-semibold text-gray-900">
-                          {formatPrice(product.price)}
-                        </span>
-
-                        {product.originalPrice > product.price && (
-                          <span className="text-xs text-gray-400 line-through">
-                            {formatPrice(product.originalPrice)}
-                          </span>
-                        )}
-                      </div>
-
-                      {product.rating > 0 && (
-                        <p className="mt-2 text-xs text-[#b28b38]">
-                          ★ {product.rating}{" "}
-                          <span className="text-gray-400">
-                            ({product.numReviews || 0} reviews)
-                          </span>
-                        </p>
-                      )}
-
-                      <p className="mt-2 text-xs text-gray-500">
-                        {product.stock > 0
-                          ? "In Stock"
-                          : "Currently Unavailable"}
-                      </p>
-                    </div>
-                  </article>
+                  <ProductCard key={product._id} item={product} />
                 ))}
               </div>
             )}

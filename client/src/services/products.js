@@ -9,6 +9,13 @@ export const getProducts = async (params = {}) => {
   return data;
 };
 
+// GET SINGLE PRODUCT BY ID
+export const getProductById = async (id) => {
+  const { data } = await api.get(`/products/${id}`);
+
+  return data;
+};
+
 // CREATE PRODUCT
 
 export const createProduct = async (productData) => {
