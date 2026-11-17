@@ -28,6 +28,7 @@ import EditProducts from "./admin/EditProducts";
 import DeleteProduct from "./admin/DeleteProducts";
 import Order from "./admin/Order";
 import ProductListing from "./pages/ProductListing";
+import ProductDetails from "./pages/ProductDetails";
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
           <Route path="newArrivals" element={<NewArrivals />} />
           <Route path="bestDeals" element={<BestDeals />} />
           <Route path="brands" element={<Brands />} />
+          <Route path="product/:id" element={<ProductDetails />} />
           <Route path="login" element={<LoginPage />} />
           <Route path="Cart" element={<CartDrawer />} />
           <Route path="f-products" element={<FeaturedProducts />} />

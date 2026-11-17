@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import useWishlist from "../hooks/useWishlist";
 import { useCartContext } from "../context/CartContext";
 
 export default function ProductCard({ item }) {
+  const navigate = useNavigate();
   const { addToCart, isInCart } = useCartContext();
   const { toggleWishlist, isWishlisted } = useWishlist();
 
@@ -34,12 +36,19 @@ export default function ProductCard({ item }) {
     toggleWishlist(item);
   };
 
+  const handleProductClick = () => {
+    navigate(`/product/${productId}`);
+  };
+
   return (
-    <div className="group relative bg-white rounded-2xl overflow-hidden border border-[#ede5da] hover:border-[#C9B19460] hover:shadow-[0_8px_30px_#C9B19420] hover:-translate-y-1 transition-all duration-300">
+    <div
+      onClick={handleProductClick}
+      className="group relative bg-white rounded-2xl overflow-hidden border border-[#ede5da] hover:border-[#C9B19460] hover:shadow-[0_8px_30px_#C9B19420] hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+    >
+      {" "}
       {/* ================================================= */}
       {/* PRODUCT IMAGE */}
       {/* ================================================= */}
-
       <div className="relative overflow-hidden bg-[#fdf5ec] h-48 sm:h-52">
         {item.image ? (
           <img
@@ -118,11 +127,9 @@ export default function ProductCard({ item }) {
           </button>
         </div>
       </div>
-
       {/* ================================================= */}
       {/* PRODUCT INFORMATION */}
       {/* ================================================= */}
-
       <div className="p-3.5">
         {/* Category */}
         <p className="text-[10px] font-medium text-[#C9B194] uppercase tracking-widest mb-0.5">
