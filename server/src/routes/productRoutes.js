@@ -9,6 +9,8 @@ import {
   updateProduct,
   deleteProduct,
   uploadProductImage,
+  createProductReview,
+  getProductReviews,
 } from "../controllers/productController.js";
 
 import { protect, admin } from "../middleware/authMiddleware.js";
@@ -16,7 +18,9 @@ import { protect, admin } from "../middleware/authMiddleware.js";
 // public routes
 
 router.get("/", getProducts);
+router.get("/:id/reviews", getProductReviews);
 
+router.post("/:id/reviews", protect, createProductReview);
 router.get("/:id", getSingleProduct);
 
 // Admin routes

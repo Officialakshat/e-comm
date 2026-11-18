@@ -29,6 +29,7 @@ import AddProduct from "./admin/AddProducts";
 import EditProducts from "./admin/EditProducts";
 import DeleteProduct from "./admin/DeleteProducts";
 import Order from "./admin/Order";
+import Profile from "./pages/Profile";
 import ProductListing from "./pages/ProductListing";
 import ProductDetails from "./pages/ProductDetails";
 
@@ -43,6 +44,7 @@ function App() {
           <Route path="newArrivals" element={<NewArrivals />} />
           <Route path="bestDeals" element={<BestDeals />} />
           <Route path="brands" element={<Brands />} />
+          <Route path="profile" element={<Profile />} />
           <Route
             path="order-confirmation/:id"
             element={<OrderConfirmation />}

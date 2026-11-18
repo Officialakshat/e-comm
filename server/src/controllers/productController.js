@@ -1,5 +1,8 @@
 import Product from "../models/product.js";
 import cloudinary from "../config/cloudinary.js";
+import Review from "../models/Review.js";
+import Order from "../models/Order.js";
+import mongoose from "mongoose";
 
 // ======================================================
 // CREATE PRODUCT
@@ -408,6 +411,170 @@ export async function uploadProductImage(req, res) {
     });
   } catch (error) {
     console.error("UPLOAD ERROR:", error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
+
+// ======================================================
+// CREATE PRODUCT REVIEW
+// ======================================================
+
+export async function createProductReview(req, res) {
+  try {
+    const { rating, comment } = req.body;
+    const productId = req.params.id;
+    const userId = req.user._id;
+
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid product ID",
+      });
+    }
+
+    const product = await Product.findById(productId);
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    const numericRating = Number(rating);
+
+    if (
+      !Number.isInteger(numericRating) ||
+      numericRating < 1 ||
+      numericRating > 5
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Rating must be between 1 and 5",
+      });
+    }
+
+    if (!comment || !comment.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Please write a review comment",
+      });
+    }
+
+    // Check whether the customer received this product
+    const deliveredOrder = await Order.findOne({
+      user: userId,
+      orderStatus: "Delivered",
+      "orderItems.product": productId,
+    });
+
+    if (!deliveredOrder) {
+      return res.status(403).json({
+        success: false,
+        message: "You can review this product after it has been delivered.",
+      });
+    }
+
+    // Prevent multiple reviews from the same customer
+    const existingReview = await Review.findOne({
+      product: productId,
+      user: userId,
+    });
+
+    if (existingReview) {
+      return res.status(409).json({
+        success: false,
+        message: "You have already reviewed this product",
+      });
+    }
+
+    await Review.create({
+      product: productId,
+      user: userId,
+      rating: numericRating,
+      comment: comment.trim(),
+    });
+
+    // Calculate updated average rating
+    const result = await Review.aggregate([
+      {
+        $match: {
+          product: new mongoose.Types.ObjectId(productId),
+        },
+      },
+      {
+        $group: {
+          _id: "$product",
+          averageRating: { $avg: "$rating" },
+          totalReviews: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const averageRating = result[0].averageRating;
+    const totalReviews = result[0].totalReviews;
+
+    // Update product rating and review count
+    product.rating = Number(averageRating.toFixed(1));
+    product.numReviews = totalReviews;
+
+    await product.save();
+
+    res.status(201).json({
+      success: true,
+      message: "Review submitted successfully",
+      rating: product.rating,
+      numReviews: product.numReviews,
+    });
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(409).json({
+        success: false,
+        message: "You have already reviewed this product",
+      });
+    }
+
+    console.error("Create Review Error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
+
+// ======================================================
+// GET PRODUCT REVIEWS
+// ======================================================
+
+export async function getProductReviews(req, res) {
+  try {
+    const productId = req.params.id;
+
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid product ID",
+      });
+    }
+
+    const reviews = await Review.find({
+      product: productId,
+    })
+      .populate("user", "name")
+      .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      count: reviews.length,
+      reviews,
+    });
+  } catch (error) {
+    console.error("Get Reviews Error:", error);
 
     res.status(500).json({
       success: false,
