@@ -6,6 +6,7 @@ import Contact from "./pages/Contact";
 import NewArrivals from "./pages/NewArrivals";
 import BestDeals from "./pages/BestDeals";
 import Brands from "./pages/Brands";
+import OrderConfirmation from "./pages/OrderConfirmation";
 import LoginPage from "./pages/Login";
 import Signup from "./pages/Signup";
 import Wishlist from "./pages/Wishlist";
@@ -15,7 +16,8 @@ import CartDrawer from "./pages/cartDrawer";
 import Privacy from "./pages/Privacy";
 import Help from "./pages/Help";
 import Conditions from "./pages/Conditions";
-import MyOrders from "./pages/MyOrder";
+import MyOrder from "./pages/MyOrder";
+import MyOrders from "./pages/MyOrders";
 import AdminLayout from "./layout/AdminLayout";
 import Dashboard from "./admin/Dashboard";
 // import Products from "./admin/Products";
@@ -41,6 +43,11 @@ function App() {
           <Route path="newArrivals" element={<NewArrivals />} />
           <Route path="bestDeals" element={<BestDeals />} />
           <Route path="brands" element={<Brands />} />
+          <Route
+            path="order-confirmation/:id"
+            element={<OrderConfirmation />}
+          />
+          <Route path="my-order" element={<MyOrders />} />
           <Route path="product/:id" element={<ProductDetails />} />
           <Route path="login" element={<LoginPage />} />
           <Route path="Cart" element={<CartDrawer />} />

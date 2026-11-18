@@ -2,7 +2,6 @@ import api from "./api";
 
 // ===============================
 // CREATE ORDER
-// ===============================
 export const createOrder = async (orderData) => {
   const { data } = await api.post("/orders", orderData);
   return data;
@@ -23,7 +22,6 @@ export const getOrderById = async (id) => {
   const { data } = await api.get(`/orders/${id}`);
   return data;
 };
-
 // ===============================
 // ADMIN - GET ALL ORDERS
 // ===============================
